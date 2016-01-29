@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RoundedNetworkImageView">
+        <attr name="android:src" />
+        <attr name="rniv_errorImage" format="reference" />
+        <attr name="rniv_isCircle" format="boolean" />
+        <attr name="rniv_cornerRadius" format="dimension|reference" />
+    </declare-styleable>
+</resources>

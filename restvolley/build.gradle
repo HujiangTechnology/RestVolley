@@ -1,0 +1,65 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.0"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    //for sdk 23
+//    useLibrary 'org.apache.http.legacy'
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:support-v4:22.0.0'
+    compile 'com.android.support:support-annotations:22.0.0'
+    compile 'com.mcxiaoke.volley:library:1.0.18'
+    compile 'com.squareup.okio:okio:1.5.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.jakewharton:disklrucache:2.0.2'
+}
+
+version="0.0.2"
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.groupId = "com.hujiang.restvolley"
+            pom.artifactId = "restvolley"
+
+            if (System.properties['isRelease'].toBoolean()) {
+                pom.version = version
+                repository(url: nexusReleases) {
+                    authentication(userName: nexusUsername, password: nexusPassword)
+                }
+            } else {
+                pom.version = "${version}-SNAPSHOT"
+                repository(url: nexusSnapshots) {
+                    authentication(userName: nexusUsername, password: nexusPassword)
+                }
+            }
+
+            pom.project {
+                description 'restvolley'
+            }
+        }
+    }
+}
