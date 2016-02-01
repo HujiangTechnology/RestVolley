@@ -12,20 +12,9 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="com.hujiang.normandy.MainActivity"
+        tools:context="com.hujiang.restvolley.demo.MainActivity"
         tools:showIn="@layout/activity_main"
         android:orientation="vertical">
-
-        <Button
-            android:id="@+id/account_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="登录"/>
-        <Button
-            android:id="@+id/league_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="社团"/>
         <Button
             android:id="@+id/file_img_btn"
             android:layout_width="match_parent"
@@ -73,25 +62,5 @@
             android:layout_height="wrap_content"
             android:text="下载"
             android:visibility="visible"/>
-        <Button
-            android:id="@+id/get_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="get请求数据"/>
-        <Button
-            android:id="@+id/post_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="post请求数据"/>
-        <Button
-            android:id="@+id/sync_get_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="同步get请求数据"/>
-        <Button
-            android:id="@+id/sync_post_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="同步post请求数据"/>
     </LinearLayout>
 </ScrollView>

@@ -1,4 +1,4 @@
-package com.hujiang.framework.hjokvolley;
+package com.hujiang.restvolley.demo;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

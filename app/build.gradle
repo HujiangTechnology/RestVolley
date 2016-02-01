@@ -5,12 +5,12 @@ android {
     buildToolsVersion "23.0.0"
 
     defaultConfig {
-        applicationId "com.hujiang.normandy"
+        applicationId "com.hujiang.restvolley.demo"
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
+        multiDexEnabled false
     }
 
     lintOptions {
@@ -24,24 +24,8 @@ android {
         preDexLibraries = false
     }
 
-    signingConfigs {
-        release {
-            storeFile file(System.properties['keyStore'])
-            keyAlias System.properties['keyAlias']
-            storePassword System.properties['keyStorePassword']
-            keyPassword System.properties['keyAliasPassword']
-        }
-        debug {
-            storeFile file(System.properties['keyStore'])
-            keyAlias System.properties['keyAlias']
-            storePassword System.properties['keyStorePassword']
-            keyPassword System.properties['keyAliasPassword']
-        }
-    }
-
     buildTypes {
         release {
-            signingConfig signingConfigs.release
             minifyEnabled false
             zipAlignEnabled true
             //移除无用资源文件
@@ -50,7 +34,6 @@ android {
         }
 
         debug {
-            signingConfig signingConfigs.debug
         }
     }
 
@@ -66,17 +49,10 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
-    compile 'com.hujiang.framework:hjframework:1.1.3'
-    compile ('com.hujiang.account:account_restvolley:1.0.0-SNAPSHOT') {
-        exclude group: 'com.hujiang.restvolley'
-    }
-    compile ('com.hujiang.league:league_restvolley:1.0.0-SNAPSHOT') {
-        exclude group: 'com.hujiang.restvolley'
-    }
-//    compile 'com.hujiang.restvolley:restvolley:0.0.2-SNAPSHOT'
 
-    testCompile 'junit:junit:4.12'
     compile project(':restvolley')
     //多dex的支持
-    compile 'com.android.support:multidex:1.0.1'
+//    compile 'com.android.support:multidex:1.0.1'
+
+    testCompile 'junit:junit:4.12'
 }
