@@ -38,7 +38,8 @@ dependencies {
     compile 'com.jakewharton:disklrucache:2.0.2'
 }
 
-version="0.0.2"
+version=System.properties['_version']
+
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -58,7 +59,7 @@ uploadArchives {
             }
 
             pom.project {
-                description 'restvolley'
+                description System.properties['_des']
             }
         }
     }
