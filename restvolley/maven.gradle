@@ -12,7 +12,7 @@ def nexusPassword = properties.getProperty("nexus.password")
 version=lib_version
 def nexusRepositoryUrl=nexusReleases
 
-if (!lib_version.toBoolean()){
+if (!lib_isRelease.toBoolean()){
     version = "${version}-SNAPSHOT"
     nexusRepositoryUrl=nexusSnapshots
 }
