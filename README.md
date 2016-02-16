@@ -11,7 +11,7 @@ dependent with Maven:
 <dependency>
   <groupId>com.hujiang.restvolley</groupId>
   <artifactId>restvolley</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 or Gradle:
@@ -292,6 +292,9 @@ limitations under the License.
 
 # Change Log
 ------
+
+* 1.0.1
+    1. fix bintrayUpload error
 
 * 1.0.0
     1. release for rest api requesting, image loading, downloading, uploading.
