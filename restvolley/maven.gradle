@@ -1,0 +1,51 @@
+
+apply plugin: 'maven'
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+def nexusReleases = properties.getProperty("nexus.releases")
+def nexusSnapshots = properties.getProperty("nexus.snapshots")
+def nexusUserName = properties.getProperty("nexus.username")
+def nexusPassword = properties.getProperty("nexus.password")
+
+version=lib_version
+def nexusRepositoryUrl=nexusReleases
+
+if (!lib_version.toBoolean()){
+    version = "${version}-SNAPSHOT"
+    nexusRepositoryUrl=nexusSnapshots
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "$nexusRepositoryUrl") {
+                authentication(userName: nexusUserName, password: nexusPassword)
+            }
+
+            pom.project {
+                name lib_artifact
+                groupId lib_group
+                artifactId lib_artifact
+                version version
+                packaging 'aar'
+                description lib_des
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id developer_id
+                        name developer_name
+                        email developer_email
+                    }
+                }
+            }
+        }
+    }
+}

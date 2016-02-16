@@ -1,7 +1,6 @@
 group = lib_group
 version = lib_version
 project.archivesBaseName = lib_artifact
-description 'A http request framework based on Volley and OkHttp that supports rest api requesting, image loading, file downloading, uploading ect.'
 
 apply plugin: 'com.jfrog.bintray'
 apply plugin: "com.jfrog.artifactory"
@@ -94,9 +93,9 @@ bintray {
         repo = "maven"
         name = "restvolley"
         desc = "A http request framework based on Volley and OkHttp that supports rest api requesting, image loading, file downloading, uploading ect."
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        issueTrackerUrl = issueUrl
+        websiteUrl = site_url
+        vcsUrl = git_url
+        issueTrackerUrl = issue_url
         licenses = ["Apache-2.0"]
         labels = 'android'
         publicDownloadNumbers = true
