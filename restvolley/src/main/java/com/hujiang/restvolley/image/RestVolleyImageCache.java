@@ -181,6 +181,8 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
                         OutputStream outputStream = editor.newOutputStream(0);
                         bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
                         editor.commit();
+
+                        outputStream.close();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
