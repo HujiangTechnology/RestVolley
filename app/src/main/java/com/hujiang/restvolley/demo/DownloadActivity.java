@@ -106,7 +106,7 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
                 }
 
                 @Override
-                public void onDownloadProgress(String url, int downloadBytes, int contentLength, File file, int httpCode, Headers headers) {
+                public void onDownloadProgress(String url, long downloadBytes, long contentLength, File file, int httpCode, Headers headers) {
                     DownloadInfo info = getDownloadInfo(url);
                     info.status = DownloadInfo.STATUS_DOWNLOADING;
                     info.downloadBytes = downloadBytes;
@@ -231,8 +231,8 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
         String url = "";
         String path = "";
         String name = "";
-        int downloadBytes = 0;
-        int totalSize = 0;
+        long downloadBytes = 0;
+        long totalSize = 0;
         int status = STATUS_DOWNLOADING;
 
         public DownloadInfo() {

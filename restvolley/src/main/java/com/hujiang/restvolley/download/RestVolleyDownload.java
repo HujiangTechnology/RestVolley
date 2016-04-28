@@ -335,9 +335,9 @@ public class RestVolleyDownload {
             , final OnDownloadListener listener) throws IOException {
         ResponseBody body = response.body();
         InputStream inputStream = body.byteStream();
-        int totalBytes = 0;
+        long totalBytes = 0;
         try {
-            totalBytes = Integer.parseInt(response.header(RestVolley.HEADER_CONTENT_LENGTH));
+            totalBytes = Long.parseLong(response.header(RestVolley.HEADER_CONTENT_LENGTH));
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
@@ -347,7 +347,7 @@ public class RestVolleyDownload {
             try {
                 byte[] tmp = new byte[BUFFER_SIZE];
                 int l;
-                int count = 0;
+                long count = 0;
                 // do not send messages if request has been cancelled
                 while ((l = inputStream.read(tmp)) != -1 && !Thread.currentThread().isInterrupted()) {
                     count += l;
@@ -370,7 +370,7 @@ public class RestVolleyDownload {
         return false;
     }
 
-    private void notifyDownloadProgress(final String url, final int downloadBytes, final int totalBytes, final File localFile
+    private void notifyDownloadProgress(final String url, final long downloadBytes, final long totalBytes, final File localFile
             , final int httpCode, final Headers headers, final OnDownloadListener listener) {
         if (listener != null) {
             mMainHandler.post(new Runnable() {
@@ -413,10 +413,6 @@ public class RestVolleyDownload {
                 }
             });
         }
-    }
-
-    private static OkHttpClient okHttpClient(Context context) {
-        return RestVolley.newRequestEngine(context, RestVolley.TAG_REQUEST_ENGINE_DEFAULT).okHttpClient;
     }
 
     /**
@@ -499,6 +495,6 @@ public class RestVolleyDownload {
          * @param httpCode http code
          * @param headers {@link Headers}
          */
-        public void onDownloadProgress(String url, int downloadBytes, int contentLength, File file, int httpCode, Headers headers);
+        public void onDownloadProgress(String url, long downloadBytes, long contentLength, File file, int httpCode, Headers headers);
     }
 }
