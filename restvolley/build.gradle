@@ -39,5 +39,5 @@ dependencies {
     compile 'com.jakewharton:disklrucache:2.0.2'
 }
 
-//apply from: 'bintray.gradle'
-//apply from: 'maven.gradle'
+apply from: 'bintray.gradle'
+apply from: 'maven.gradle'

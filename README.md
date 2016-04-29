@@ -14,13 +14,13 @@ dependent with Maven:
 <dependency>
   <groupId>com.hujiang.restvolley</groupId>
   <artifactId>restvolley</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 or Gradle:
 
 ```
-compile 'com.hujiang.restvolley:restvolley:1.0.1'
+compile 'com.hujiang.restvolley:restvolley:1.0.2'
 ```
 
 # Functions
