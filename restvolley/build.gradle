@@ -32,10 +32,10 @@ dependencies {
     compile 'com.android.support:support-v4:22.0.0'
     compile 'com.android.support:support-annotations:22.0.0'
     compile 'com.mcxiaoke.volley:library:1.0.19'
-    compile 'com.squareup.okio:okio:1.5.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
-    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.squareup.okio:okio:1.6.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.7.2'
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.jakewharton:disklrucache:2.0.2'
 }
 
