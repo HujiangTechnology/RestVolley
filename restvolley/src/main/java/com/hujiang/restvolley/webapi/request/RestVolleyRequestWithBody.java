@@ -11,6 +11,7 @@ import android.text.TextUtils;
 
 import com.hujiang.restvolley.RestVolley;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -64,7 +65,11 @@ public class RestVolleyRequestWithBody<R extends RestVolleyRequest> extends Rest
     @Override
     protected String onBuildBodyContentType() {
         if (mHttpEntity != null) {
-            return mHttpEntity.getContentType().getValue();
+            Header contentType = mHttpEntity.getContentType();
+            if (contentType == null) {
+                return super.onBuildBodyContentType();
+            }
+            return contentType.getValue();
         } else {
             return super.onBuildBodyContentType();
         }
