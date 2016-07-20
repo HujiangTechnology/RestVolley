@@ -40,6 +40,8 @@ public class RestVolleyDownload {
 
     private static final int BUFFER_SIZE = 10240;
 
+    private static final String DOWNLOAD_REQUEST_ENGINE_TAG = "download";
+
     private Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     private Request.Builder mRequestBuilder;
@@ -51,7 +53,7 @@ public class RestVolleyDownload {
      * @param context Context
      */
     public RestVolleyDownload(Context context) {
-        this(RestVolley.getDefaultRequestEngine(context));
+        this(RestVolley.newRequestEngine(context, DOWNLOAD_REQUEST_ENGINE_TAG));
     }
 
     /**

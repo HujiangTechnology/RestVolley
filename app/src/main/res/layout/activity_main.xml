@@ -62,5 +62,10 @@
             android:layout_height="wrap_content"
             android:text="下载"
             android:visibility="visible"/>
+        <Button
+            android:id="@+id/concurrency_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="并发请求"/>
     </LinearLayout>
 </ScrollView>

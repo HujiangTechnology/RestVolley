@@ -29,6 +29,7 @@ import com.hujiang.restvolley.TaskScheduler;
  */
 public class RestVolleyImageLoader {
 
+    private static final String IMAGE_REQUEST_ENGINE_TAG = "image";
     private static RestVolleyImageLoader sInstance;
 
     private RequestEngine mRequestEngine;
@@ -40,7 +41,7 @@ public class RestVolleyImageLoader {
     private RestVolleyImageLoader(Context context) {
         mContext = context.getApplicationContext();
 
-        mRequestEngine = RestVolley.newRequestEngine(context, RestVolley.TAG_REQUEST_ENGINE_DEFAULT);
+        mRequestEngine = RestVolley.newRequestEngine(context, IMAGE_REQUEST_ENGINE_TAG);
 
         mRestVolleyImageCache = new RestVolleyImageCache(context);
         mImageLoader = new ImageLoaderCompat(mContext, mRequestEngine.requestQueue, mRestVolleyImageCache);

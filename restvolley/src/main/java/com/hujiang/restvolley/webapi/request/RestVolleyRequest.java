@@ -43,6 +43,8 @@ import java.util.concurrent.TimeUnit;
  * @param <R> type extends {@link RestVolleyRequest}
  */
 public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
+
+    private static final String WEBAPI_REQUEST_ENGINE = "webapi";
     /**
      * http request engine {@link RequestEngine}.
      */
@@ -117,7 +119,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
     public RestVolleyRequest(Context context, int method) {
         mMethod = method;
 
-        mRequestEngine = RestVolley.newRequestEngine(context, RestVolley.TAG_REQUEST_ENGINE_DEFAULT);
+        mRequestEngine = RestVolley.newRequestEngine(context, WEBAPI_REQUEST_ENGINE);
     }
 
     /**

@@ -7,12 +7,23 @@
 package com.hujiang.restvolley;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.http.AndroidHttpClient;
+import android.os.Build;
 
+import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HttpClientStack;
+import com.android.volley.toolbox.HttpStack;
+import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
 import com.squareup.okhttp.OkHttpClient;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +35,16 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0.0
  * @since 2015-12-16
  */
-public class RestVolley {
+public class RestVolley extends Volley {
 
+    /**
+     * default cache dir
+     */
+    public static final String DEF_CACHE_DIR = "volley";
+    /**
+     * default thread pool size
+     */
+    public static final int DEF_THREAD_POOL_SIZE = 8;
     /**
      * http header Content-Type.
      */
@@ -108,7 +127,7 @@ public class RestVolley {
             okHttpClient.setSslSocketFactory(SSLManager.instance().getSSLSocketFactory());
             okHttpClient.setHostnameVerifier(SSLManager.instance().getHostnameVerifier());
 
-            RequestQueue requestQueue = Volley.newRequestQueue(context.getApplicationContext(), new OkHttpStack(okHttpClient));
+            RequestQueue requestQueue = Volley.newRequestQueue(context.getApplicationContext(), new OkHttpStack(okHttpClient), DEF_THREAD_POOL_SIZE);
             requestQueue.start();
 
             requestEngine = new RequestEngine(requestQueue, okHttpClient);
@@ -162,5 +181,52 @@ public class RestVolley {
         if (requestEngine != null) {
             requestEngine.stop();
         }
+    }
+
+    public static RequestQueue newRequestQueue(Context context, HttpStack stack, int maxDiskCacheBytes, int threadPoolSize) {
+        File cacheDir = new File(context.getCacheDir(), DEF_CACHE_DIR);
+
+        String userAgent = "volley/0";
+        try {
+            String packageName = context.getPackageName();
+            PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
+            userAgent = packageName + "/" + info.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+
+        if (stack == null) {
+            if (Build.VERSION.SDK_INT >= 9) {
+                stack = new HurlStack();
+            } else {
+                // Prior to Gingerbread, HttpUrlConnection was unreliable.
+                // See: http://android-developers.blogspot.com/2011/09/androids-http-clients.html
+                stack = new HttpClientStack(AndroidHttpClient.newInstance(userAgent));
+            }
+        }
+
+        Network network = new BasicNetwork(stack);
+
+        if (threadPoolSize <= 0) {
+            threadPoolSize = Runtime.getRuntime().availableProcessors() + 1;
+        }
+        RequestQueue queue;
+        if (maxDiskCacheBytes <= -1)
+        {
+            // No maximum size specified
+            queue = new RequestQueue(new DiskBasedCache(cacheDir), network, threadPoolSize);
+        }
+        else
+        {
+            // Disk cache size specified
+            queue = new RequestQueue(new DiskBasedCache(cacheDir, maxDiskCacheBytes), network, threadPoolSize);
+        }
+
+        queue.start();
+
+        return queue;
+    }
+
+    public static RequestQueue newRequestQueue(Context context, HttpStack stack, int threadPoolSize) {
+        return newRequestQueue(context, stack, -1, threadPoolSize);
     }
 }

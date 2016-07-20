@@ -293,17 +293,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-# Change Log
+# [Change Log](CHANGELOG.md)
 ------
-
-* 1.0.1
-    1. fix bintrayUpload error
-
-* 1.0.0
-    1. release for rest api requesting, image loading, downloading, uploading.
-
-
-
 
 
 
