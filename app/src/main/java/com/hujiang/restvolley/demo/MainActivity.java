@@ -113,11 +113,10 @@ public class MainActivity extends AppCompatActivity {
                 final String uuid = "B6653C8DE0A466192FFDBFB";
 
                 final RestVolleyRequest request = new GetRequest(MainActivity.this);
-                request.setTag("MainActivity");
+                request.setTag(TAG);
                 request.setShouldCache(false);
                 request.setTimeout(10000);
-//                request.setRetryPolicy(new DefaultRetryPolicy(2000, 3, 1.0f));
-
+                request.setRetryPolicy(new DefaultRetryPolicy(2000, 3, 1.0f));
 
                 request.url(url1)
                         .addHeader("pragma-token", token)
@@ -126,12 +125,12 @@ public class MainActivity extends AppCompatActivity {
                         .addParams("token", token).execute(new RestVolleyCallback<String>() {
                     @Override
                     public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                        Log.i("MainActivity", statusCode + ":1::::" + message);
+                        Log.i(TAG, statusCode + ":1::::" + message);
                     }
 
                     @Override
                     public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                        Log.i("MainActivity", statusCode + ":1::::" + message);
+                        Log.i(TAG, statusCode + ":1::::" + message);
                     }
                 });
 
@@ -145,12 +144,12 @@ public class MainActivity extends AppCompatActivity {
                                 .addParams("token", token).execute(new RestVolleyCallback<String>() {
                             @Override
                             public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":2::::" + message);
+                                Log.i(TAG, statusCode + ":2::::" + message);
                             }
 
                             @Override
                             public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":2::::" + message);
+                                Log.i(TAG, statusCode + ":2::::" + message);
                             }
                         });
 
@@ -161,69 +160,69 @@ public class MainActivity extends AppCompatActivity {
                                 .addParams("token", token).execute(new RestVolleyCallback<String>() {
                             @Override
                             public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":3::::" + message);
+                                Log.i(TAG, statusCode + ":3::::" + message);
                             }
 
                             @Override
                             public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":3::::" + message);
+                                Log.i(TAG, statusCode + ":3::::" + message);
                             }
                         });
 
                         request.url("http://www.baidu.com").execute(new RestVolleyCallback<String>() {
                             @Override
                             public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":4::::" + message);
+                                Log.i(TAG, statusCode + ":4::::" + message);
                             }
 
                             @Override
                             public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":4::::" + message);
+                                Log.i(TAG, statusCode + ":4::::" + message);
                             }
                         });
 
                         request.url("http://stackoverflow.com/").execute(new RestVolleyCallback<String>() {
                             @Override
                             public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":5::::" + message);
+                                Log.i(TAG, statusCode + ":5::::" + message);
                             }
 
                             @Override
                             public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":5::::" + message);
+                                Log.i(TAG, statusCode + ":5::::" + message);
                             }
                         });
                         request.url("http://www.cnbeta.com").execute(new RestVolleyCallback<String>() {
                             @Override
                             public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":6::::" + message);
+                                Log.i(TAG, statusCode + ":6::::" + message);
                             }
 
                             @Override
                             public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":6::::" + message);
+                                Log.i(TAG, statusCode + ":6::::" + message);
                             }
                         });
                         request.url("https://bintray.com/").execute(new RestVolleyCallback<String>() {
                             @Override
                             public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":7::::" + message);
+                                Log.i(TAG, statusCode + ":7::::" + message);
                             }
 
                             @Override
                             public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":7::::" + message);
+                                Log.i(TAG, statusCode + ":7::::" + message);
                             }
                         });
                         request.url("http://www.infoq.com/cn/").execute(new RestVolleyCallback<String>() {
                             @Override
                             public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":8::::" + message);
+                                Log.i(TAG, statusCode + ":8::::" + message);
                             }
 
                             @Override
                             public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i("MainActivity", statusCode + ":8::::" + message);
+                                Log.i(TAG, statusCode + ":8::::" + message);
                             }
                         });
                     }
@@ -231,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Log.i("MainActivity", "CPU_COUNT:" + Runtime.getRuntime().availableProcessors());
+        Log.i(TAG, "CPU_COUNT:" + Runtime.getRuntime().availableProcessors());
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {

@@ -208,6 +208,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                 .setSequence(mSequence)
                 .setShouldCache(mShouldCache)
                 .setCacheEntry(mCacheEntry)
+                .setRequestQueue(mRequestEngine.requestQueue)
                 .setRedirectUrl(mRedirectUrl);
         mVolleyRequest.addMarker(mMarker);
 
@@ -239,6 +240,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                 .setSequence(mSequence)
                 .setShouldCache(mShouldCache)
                 .setCacheEntry(mCacheEntry)
+                .setRequestQueue(mRequestEngine.requestQueue)
                 .setRedirectUrl(mRedirectUrl);
         mVolleyRequest.addMarker(mMarker);
 

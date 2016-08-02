@@ -11,16 +11,21 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
+import com.android.volley.ExecutorDelivery;
 import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RestResponseDelivery;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpClientStack;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
+import com.hujiang.restvolley.compat.RestVolleyNetwork;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
@@ -127,7 +132,7 @@ public class RestVolley extends Volley {
             okHttpClient.setSslSocketFactory(SSLManager.instance().getSSLSocketFactory());
             okHttpClient.setHostnameVerifier(SSLManager.instance().getHostnameVerifier());
 
-            RequestQueue requestQueue = Volley.newRequestQueue(context.getApplicationContext(), new OkHttpStack(okHttpClient), DEF_THREAD_POOL_SIZE);
+            RequestQueue requestQueue = RestVolley.newRequestQueue(context.getApplicationContext(), new OkHttpStack(okHttpClient), DEF_THREAD_POOL_SIZE);
             requestQueue.start();
 
             requestEngine = new RequestEngine(requestQueue, okHttpClient);
@@ -204,21 +209,22 @@ public class RestVolley extends Volley {
             }
         }
 
-        Network network = new BasicNetwork(stack);
+        Network network = new RestVolleyNetwork(stack);
 
         if (threadPoolSize <= 0) {
             threadPoolSize = Runtime.getRuntime().availableProcessors() + 1;
         }
         RequestQueue queue;
+        RestResponseDelivery delivery = new RestResponseDelivery(new Handler(Looper.getMainLooper()));
         if (maxDiskCacheBytes <= -1)
         {
             // No maximum size specified
-            queue = new RequestQueue(new DiskBasedCache(cacheDir), network, threadPoolSize);
+            queue = new RequestQueue(new DiskBasedCache(cacheDir), network, threadPoolSize, delivery);
         }
         else
         {
             // Disk cache size specified
-            queue = new RequestQueue(new DiskBasedCache(cacheDir, maxDiskCacheBytes), network, threadPoolSize);
+            queue = new RequestQueue(new DiskBasedCache(cacheDir, maxDiskCacheBytes), network, threadPoolSize, delivery);
         }
 
         queue.start();

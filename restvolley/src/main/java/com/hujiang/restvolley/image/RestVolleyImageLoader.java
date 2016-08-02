@@ -111,7 +111,7 @@ public class RestVolleyImageLoader {
     /**
      * just load the image.
      * @param uri uri
-     * @param listener {@link com.hujiang.restvolley.image.ImageLoaderCompat.ImageListener}
+     * @param listener {@link ImageLoaderCompat.ImageListener}
      */
     public void loadImage(final String uri, final ImageLoaderCompat.ImageListener listener) {
         TaskScheduler.execute(new Runnable() {
@@ -126,7 +126,7 @@ public class RestVolleyImageLoader {
      * just load the image with the specified {@link ImageLoadOption}.
      * @param uri uri
      * @param imageLoadOption {@link ImageLoadOption}
-     * @param listener {@link com.hujiang.restvolley.image.ImageLoaderCompat.ImageListener}
+     * @param listener {@link ImageLoaderCompat.ImageListener}
      */
     public void loadImage(final String uri, final ImageLoadOption imageLoadOption, final ImageLoaderCompat.ImageListener listener) {
         TaskScheduler.execute(new Runnable() {
