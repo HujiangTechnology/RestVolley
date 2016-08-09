@@ -216,13 +216,10 @@ public class RestVolley extends Volley {
         }
         RequestQueue queue;
         RestResponseDelivery delivery = new RestResponseDelivery(new Handler(Looper.getMainLooper()));
-        if (maxDiskCacheBytes <= -1)
-        {
+        if (maxDiskCacheBytes <= -1) {
             // No maximum size specified
             queue = new RequestQueue(new DiskBasedCache(cacheDir), network, threadPoolSize, delivery);
-        }
-        else
-        {
+        } else {
             // Disk cache size specified
             queue = new RequestQueue(new DiskBasedCache(cacheDir, maxDiskCacheBytes), network, threadPoolSize, delivery);
         }

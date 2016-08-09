@@ -21,13 +21,17 @@ import java.lang.reflect.Type;
  */
 public class GsonUtils {
 
-    private static Gson sGson = new GsonBuilder().create();
+    private static Gson sGson;
 
     /**
      * get Gson.
      * @return Gson.
      */
     public static Gson getGson() {
+        if (sGson == null) {
+            sGson = newGson();
+        }
+
         return sGson;
     }
 
@@ -48,7 +52,7 @@ public class GsonUtils {
      */
     public static <T> T fromJsonString(String jsonString, Class<T> clazz) {
         try {
-            return sGson.fromJson(jsonString, clazz);
+            return getGson().fromJson(jsonString, clazz);
         } catch (Throwable var3) {
             var3.printStackTrace();
             return null;
@@ -64,7 +68,7 @@ public class GsonUtils {
      */
     public static <T> T fromJsonString(String json, Type typeOfT) {
         try {
-            return sGson.fromJson(json, typeOfT);
+            return getGson().fromJson(json, typeOfT);
         } catch (JsonSyntaxException var3) {
             var3.printStackTrace();
             return null;
@@ -78,7 +82,7 @@ public class GsonUtils {
      */
     public static String toJsonString(Object object) {
         try {
-            return sGson.toJson(object);
+            return getGson().toJson(object);
         } catch (Throwable var2) {
             var2.printStackTrace();
             return "";
