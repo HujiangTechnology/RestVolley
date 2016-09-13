@@ -291,6 +291,8 @@ public class RestVolleyDownload {
         DownloadResponse downloadResponse = new DownloadResponse();
         try {
             Response result = mOkHttpClient.newCall(mRequestBuilder.build()).execute();
+            //write stream to file
+            writeStream2File(result, localFile, mIsAppend, null);
             downloadResponse = new DownloadResponse(localFile, result.headers(), result.code(), result.message());
         } catch (IOException e) {
             e.printStackTrace();

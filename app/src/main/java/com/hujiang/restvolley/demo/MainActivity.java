@@ -211,6 +211,9 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
+                                if (getException() != null) {
+                                    Log.i(TAG, "exception:" + getException().toString());
+                                }
                                 Log.i(TAG, statusCode + ":7::::" + message);
                             }
                         });

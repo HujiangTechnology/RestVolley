@@ -42,6 +42,8 @@ public class RestVolleyResponse<T> {
      */
     public String message;
 
+    public Exception exception;
+
     /**
      * constructor.
      * @param statusCode http status code.
@@ -58,5 +60,25 @@ public class RestVolleyResponse<T> {
         this.notModified = notModified;
         this.networkTimeMs = networkTimeMs;
         this.message = message;
+    }
+
+    /**
+     * constructor.
+     * @param statusCode http status code.
+     * @param data response data.
+     * @param headers response headers.
+     * @param notModified response not modified.
+     * @param networkTimeMs responese time.
+     * @param message response message.
+     * @param e exception as VolleyError
+     */
+    public RestVolleyResponse(int statusCode, T data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message, Exception e) {
+        this.statusCode = statusCode;
+        this.data = data;
+        this.headers = headers;
+        this.notModified = notModified;
+        this.networkTimeMs = networkTimeMs;
+        this.message = message;
+        this.exception = e;
     }
 }

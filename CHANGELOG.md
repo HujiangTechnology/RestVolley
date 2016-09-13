@@ -1,7 +1,13 @@
+### v1.0.5
+* 添加接口RestVolleyCallback#getException()获取异常信息
+
+### v1.0.4
+* 解决同步下载接口不能下载文件的问题
+
 ### v1.0.1
-    1. fix bintrayUpload error
+* fix bintrayUpload error
 
 ### v1.0.0
-    1. release for rest api requesting, image loading, downloading, uploading.
+* release for rest api requesting, image loading, downloading, uploading.
 
 

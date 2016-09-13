@@ -26,6 +26,7 @@ import com.hujiang.restvolley.webapi.RestVolleyCallback;
 import com.hujiang.restvolley.webapi.RestVolleyModel;
 import com.hujiang.restvolley.webapi.RestVolleyResponse;
 
+import org.apache.http.HttpStatus;
 import org.apache.http.protocol.HTTP;
 
 import java.util.HashMap;
@@ -175,11 +176,17 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                 NetworkResponse response = error.networkResponse;
                 String s = response == null ? error.getMessage() : convertNetworkResponseData2String(response, mCharset);
 
-                callback.onFail(response == null ? -1 : response.statusCode
-                        , createDefaultResponseData(clazz, s)
-                        , response == null ? null : response.headers
-                        , response == null ? false : response.notModified
-                        , response == null ? 0 : response.networkTimeMs, s);
+                int httpStatus = response == null ? -1 : response.statusCode;
+                DATA d = createDefaultResponseData(clazz, s);
+                Map<String, String> headers = response == null ? null : response.headers;
+                boolean notModified = response == null ? false : response.notModified;
+                long networkTime = response == null ? 0 : response.networkTimeMs;
+                String message = s;
+
+
+                callback.setException(error);
+                callback.onFail(httpStatus, d, headers, notModified, networkTime, message);
+
                 //finish callback
                 callback.onFinished(RestVolleyRequest.this);
 
@@ -247,15 +254,19 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
         future.setRequest(mVolleyRequest);
 
         mRequestEngine.requestQueue.add(mVolleyRequest);
+
+        RestVolleyResponse<DATA> response = new RestVolleyResponse<DATA>(-1, null, null, false, 0, null);
         try {
-            return future.get();
+            response = future.get();
         } catch (InterruptedException e) {
+            response.exception = e;
             e.printStackTrace();
         } catch (ExecutionException e) {
+            response.exception = e;
             e.printStackTrace();
         }
 
-        return null;
+        return response;
     }
 
     /**

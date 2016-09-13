@@ -20,6 +20,17 @@ import java.util.Map;
  * @param <T> callback data type.
  */
 public abstract class RestVolleyCallback<T> {
+
+    protected Exception mException;
+
+    public void setException(Exception e) {
+        mException = e;
+    }
+
+    public Exception getException() {
+        return mException;
+    }
+
     /**
      * start request callback.
      * @param request {@link RestVolleyRequest}
