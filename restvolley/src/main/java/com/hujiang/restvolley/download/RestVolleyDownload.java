@@ -360,6 +360,9 @@ public class RestVolleyDownload {
                     notifyDownloadProgress(response.request().urlString(), count, totalBytes, localFile, response.code()
                             , response.headers(), listener);
                 }
+            } catch(Exception e) {
+                e.printStackTrace();
+                notifyDownloadError(response.request().urlString(), e, response.code(), response.headers(), listener);
             } finally {
                 inputStream.close();
 

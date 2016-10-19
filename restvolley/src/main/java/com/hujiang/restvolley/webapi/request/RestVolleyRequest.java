@@ -26,7 +26,6 @@ import com.hujiang.restvolley.webapi.RestVolleyCallback;
 import com.hujiang.restvolley.webapi.RestVolleyModel;
 import com.hujiang.restvolley.webapi.RestVolleyResponse;
 
-import org.apache.http.HttpStatus;
 import org.apache.http.protocol.HTTP;
 
 import java.util.HashMap;

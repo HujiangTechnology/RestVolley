@@ -8,9 +8,8 @@ package com.hujiang.restvolley.demo;
 import android.app.Application;
 import android.content.Context;
 import android.os.StrictMode;
+
 //import android.support.multidex.MultiDex;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 
 /**
  * class description here

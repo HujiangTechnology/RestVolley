@@ -89,13 +89,15 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
         String key = generateKey(cacheKey);
         boolean isInMem = mMemCache.get(key) != null;
         boolean isInDisk = false;
-        try {
-            DiskLruCache.Snapshot snapshot = mDiskCache.get(key);
-            if (snapshot != null) {
-                isInDisk = snapshot.getInputStream(0) != null;
+        if (mDiskCache != null) {
+            try {
+                DiskLruCache.Snapshot snapshot = mDiskCache.get(key);
+                if (snapshot != null) {
+                    isInDisk = snapshot.getInputStream(0) != null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return isInMem && isInDisk;
@@ -126,10 +128,12 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
     public boolean remove(String url) {
         String key = generateKey(url);
         mMemCache.remove(key);
-        try {
-            return mDiskCache.remove(key);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (mDiskCache != null) {
+            try {
+                return mDiskCache.remove(key);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
@@ -176,13 +180,15 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
             @Override
             public void run() {
                 try {
-                    DiskLruCache.Editor editor = mDiskCache.edit(key);
-                    if (editor != null) {
-                        OutputStream outputStream = editor.newOutputStream(0);
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-                        editor.commit();
+                    if (mDiskCache != null) {
+                        DiskLruCache.Editor editor = mDiskCache.edit(key);
+                        if (editor != null) {
+                            OutputStream outputStream = editor.newOutputStream(0);
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+                            editor.commit();
 
-                        outputStream.close();
+                            outputStream.close();
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -192,6 +198,10 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
     }
 
     private Bitmap getBitmapFromDiskLruCache(String key) {
+        if (mDiskCache == null) {
+            return null;
+        }
+
         try {
             DiskLruCache.Snapshot snapshot = mDiskCache.get(key);
             if (snapshot != null) {
@@ -205,6 +215,7 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 

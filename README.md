@@ -20,7 +20,7 @@ dependent with Maven:
 or Gradle:
 
 ```
-compile 'com.hujiang.restvolley:restvolley:1.0.2'
+compile 'com.hujiang.restvolley:restvolley:1.0.6'
 ```
 
 # Functions

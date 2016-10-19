@@ -6,7 +6,6 @@
 package com.hujiang.restvolley.compat;
 
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;

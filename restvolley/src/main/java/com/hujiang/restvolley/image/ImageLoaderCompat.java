@@ -22,8 +22,6 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.hujiang.restvolley.R;
-import com.hujiang.restvolley.image.ImageLoadOption;
-import com.hujiang.restvolley.image.ImageProcessor;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

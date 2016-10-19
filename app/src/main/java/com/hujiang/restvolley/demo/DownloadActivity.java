@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.format.Formatter;
-import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -22,7 +21,6 @@ import com.squareup.okhttp.Headers;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 public class DownloadActivity extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener {
@@ -76,55 +74,49 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
             final String path = DOWNLOAD_DIR + taskName;
             String mimeType = "application/apk";
 
-            new Thread() {
+            new RestVolleyDownload(DownloadActivity.this)
+                    .url(url)
+                    .setTimeout(5000)
+                    .download(path, new RestVolleyDownload.OnDownloadListener() {
                 @Override
-                public void run() {
-                    RestVolleyDownload.syncDownload(DownloadActivity.this, "http://app.m.hjfile.cn/android/tingliku_hjpc.apk", path);
+                public void onDownloadStart(String url) {
+                    DownloadInfo downloadInfo = new DownloadInfo();
+                    downloadInfo.id = url.hashCode();
+                    downloadInfo.downloadBytes = 0;
+                    downloadInfo.totalSize = 0;
+                    downloadInfo.url = url;
+                    downloadInfo.path = path;
+                    downloadInfo.name = taskName;
+                    downloadInfo.status = DownloadInfo.STATUS_DOWNLOADING;
+                    mDownloadInfos.add(downloadInfo);
+                    mDownloadAdapter.notifyDataSetChanged();
                 }
-            }.start();
 
+                @Override
+                public void onDownloadSuccess(String url, File file, int httpCode, Headers headers) {
+                    DownloadInfo info = getDownloadInfo(url);
+                    info.status = DownloadInfo.STATUS_COMPLETE;
+                    info.downloadBytes = info.totalSize;
+                    mDownloadAdapter.notifyDataSetChanged();
+                }
 
-            return;
-//            RestVolleyDownload.download(DownloadActivity.this, url, path, new RestVolleyDownload.OnDownloadListener() {
-//                @Override
-//                public void onDownloadStart(String url) {
-//                    DownloadInfo downloadInfo = new DownloadInfo();
-//                    downloadInfo.id = url.hashCode();
-//                    downloadInfo.downloadBytes = 0;
-//                    downloadInfo.totalSize = 0;
-//                    downloadInfo.url = url;
-//                    downloadInfo.path = path;
-//                    downloadInfo.name = taskName;
-//                    downloadInfo.status = DownloadInfo.STATUS_DOWNLOADING;
-//                    mDownloadInfos.add(downloadInfo);
-//                    mDownloadAdapter.notifyDataSetChanged();
-//                }
-//
-//                @Override
-//                public void onDownloadSuccess(String url, File file, int httpCode, Headers headers) {
-//                    DownloadInfo info = getDownloadInfo(url);
-//                    info.status = DownloadInfo.STATUS_COMPLETE;
-//                    info.downloadBytes = info.totalSize;
-//                    mDownloadAdapter.notifyDataSetChanged();
-//                }
-//
-//                @Override
-//                public void onDownloadFailure(String url, Exception e, int httpCode, Headers headers) {
-//                    getDownloadInfo(url).status = DownloadInfo.STATUS_ERROR;
-//                    mDownloadAdapter.notifyDataSetChanged();
-//                }
-//
-//                @Override
-//                public void onDownloadProgress(String url, long downloadBytes, long contentLength, File file, int httpCode, Headers headers) {
-//                    DownloadInfo info = getDownloadInfo(url);
-//                    info.status = DownloadInfo.STATUS_DOWNLOADING;
-//                    info.downloadBytes = downloadBytes;
-//                    info.totalSize = contentLength;
-//                    mDownloadAdapter.notifyDataSetChanged();
-//                }
-//            });
+                @Override
+                public void onDownloadFailure(String url, Exception e, int httpCode, Headers headers) {
+                    getDownloadInfo(url).status = DownloadInfo.STATUS_ERROR;
+                    mDownloadAdapter.notifyDataSetChanged();
+                }
 
-//            mDownloadUrlIndex++;
+                @Override
+                public void onDownloadProgress(String url, long downloadBytes, long contentLength, File file, int httpCode, Headers headers) {
+                    DownloadInfo info = getDownloadInfo(url);
+                    info.status = DownloadInfo.STATUS_DOWNLOADING;
+                    info.downloadBytes = downloadBytes;
+                    info.totalSize = contentLength;
+                    mDownloadAdapter.notifyDataSetChanged();
+                }
+            });
+
+            mDownloadUrlIndex++;
         }
     }
 
