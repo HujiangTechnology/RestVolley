@@ -8,16 +8,7 @@ A http request engine based on [Volley] and [OkHttp], giving up Apache HttpClien
 
 binary on [jcenter](https://bintray.com/firefly1126/maven/restvolley/view)
 
-dependent with Maven:
-
-```
-<dependency>
-  <groupId>com.hujiang.restvolley</groupId>
-  <artifactId>restvolley</artifactId>
-  <version>1.0.2</version>
-</dependency>
-```
-or Gradle:
+dependency with Gradle:
 
 ```
 compile 'com.hujiang.restvolley:restvolley:1.0.6'
