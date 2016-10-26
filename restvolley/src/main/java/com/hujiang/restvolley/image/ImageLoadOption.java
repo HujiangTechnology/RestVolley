@@ -6,6 +6,7 @@
 
 package com.hujiang.restvolley.image;
 
+import android.graphics.Bitmap;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 
@@ -26,6 +27,8 @@ public class ImageLoadOption {
     boolean isCacheEnable = true;
     ImageView.ScaleType scaleType = ImageView.ScaleType.CENTER_INSIDE;
     Animation imgLoadAnimation;
+    ImageDisplayer imageDisplayer;
+    Bitmap.Config bitmapConfig;
 
     private ImageLoadOption() {
 
@@ -117,4 +120,25 @@ public class ImageLoadOption {
         return this;
     }
 
+    /**
+     * set {@link ImageDisplayer}
+     * @param imageDisplayer {@link ImageDisplayer}
+     * @return {@link ImageLoadOption}
+     */
+    public ImageLoadOption imageDisplayer(ImageDisplayer imageDisplayer) {
+        this.imageDisplayer = imageDisplayer;
+
+        return this;
+    }
+
+    /**
+     * set {@link android.graphics.Bitmap.Config}
+     * @param bitmapConfig {@link android.graphics.Bitmap.Config}
+     * @return {@link ImageLoadOption}
+     */
+    public ImageLoadOption bitmapConfig(Bitmap.Config bitmapConfig) {
+        this.bitmapConfig = bitmapConfig;
+
+        return this;
+    }
 }

@@ -7,6 +7,7 @@
 package com.hujiang.restvolley.image;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
@@ -83,34 +84,56 @@ public class ImageLoaderCompat {
      * will be used as an L1 cache before dispatch to Volley. Implementations
      * must not block. Implementation with an LruCache is recommended.
      */
-    public interface ImageCache {
+    public static abstract class ImageCache {
+
+        public static class CacheItem {
+            Bitmap bitmap;
+            String key;
+            LoadFrom loadFrom;
+
+            public CacheItem(String key, Bitmap bitmap, LoadFrom loadFrom) {
+                this.bitmap = bitmap;
+                this.key = key;
+                this.loadFrom = loadFrom;
+            }
+        }
+
         /**
          * has image been cached withe the specified key.
          * @param cacheKey cache key
          * @return is cached or not
          */
-        public boolean isCached(String cacheKey);
+        public abstract boolean isCached(String cacheKey);
 
         /**
          * remove the bitmap cache with the specified key.
          * @param cacheKey cache key
          * @return cache removed or not
          */
-        public boolean remove(String cacheKey);
+        public abstract boolean remove(String cacheKey);
 
         /**
          * get the bitmap from the cache with the cache key.
          * @param cacheKey cache key
          * @return {@link Bitmap}
          */
-        public Bitmap getBitmap(String cacheKey);
+        public abstract Bitmap getBitmap(String cacheKey);
+
+        /**
+         * get CacheItem that contains the bitmap, key, LoadFrom
+         * @param cacheKey cache key
+         * @return CacheItem
+         */
+        public CacheItem getCache(String cacheKey) {
+            return null;
+        }
 
         /**
          * put the bitmap input cache with the specified key.
          * @param cacheKey cache key
          * @param bitmap {@link Bitmap}
          */
-        public void putBitmap(String cacheKey, Bitmap bitmap);
+        public abstract void putBitmap(String cacheKey, Bitmap bitmap);
     }
 
     /**
@@ -149,16 +172,27 @@ public class ImageLoaderCompat {
                 if (response.getBitmap() != null) {
                     if (!TextUtils.isEmpty(uri)
                             && uri.equals(view.getTag(R.id.restvolley_image_imageview_tag))) {
-                        view.setImageBitmap(response.getBitmap());
+                        if (imageLoadOption != null && imageLoadOption.imageDisplayer != null) {
+                            imageLoadOption.imageDisplayer.display(response.getBitmap(), view, response.getLoadFrom());
+                        } else {
+                            view.setImageBitmap(response.getBitmap());
 
-                        if (imageLoadOption != null && imageLoadOption.imgLoadAnimation != null) {
-                            view.startAnimation(imageLoadOption.imgLoadAnimation);
+                            if (imageLoadOption != null && imageLoadOption.imgLoadAnimation != null) {
+                                view.startAnimation(imageLoadOption.imgLoadAnimation);
+                            }
                         }
                     } else {
-                        view.setImageResource(imageLoadOption != null ? imageLoadOption.defaultImgResId : 0);
+                        try {
+                            view.setImageResource(imageLoadOption != null ? imageLoadOption.defaultImgResId : 0);
+                        } catch (Resources.NotFoundException e) {
+                        }
+
                     }
-                } else if (imageLoadOption != null) {
-                    view.setImageResource(imageLoadOption.defaultImgResId);
+                } else {
+                    try {
+                        view.setImageResource(imageLoadOption != null ? imageLoadOption.defaultImgResId : 0);
+                    } catch (Resources.NotFoundException e) {
+                    }
                 }
             }
         };
@@ -274,17 +308,17 @@ public class ImageLoaderCompat {
 
         if (isCacheEnable) {
             // Try to look up the request in the cache of remote images.
-            Bitmap cachedBitmap = mCache.getBitmap(cacheKey);
-            if (cachedBitmap != null) {
+            ImageCache.CacheItem cacheItem = mCache.getCache(cacheKey);
+            if (cacheItem.bitmap != null) {
                 // Return the cached bitmap.
-                ImageContainer container = new ImageContainer(cachedBitmap, requestUri, null, null);
+                ImageContainer container = new ImageContainer(cacheItem.bitmap, requestUri, cacheKey, cacheItem.loadFrom, null);
                 responseOnUiThread(container, true, imageListener);
                 return container;
             }
         }
 
         // The bitmap did not exist in the cache, fetch it!
-        ImageContainer imageContainer = new ImageContainer(null, requestUri, cacheKey, imageListener);
+        ImageContainer imageContainer = new ImageContainer(null, requestUri, cacheKey, LoadFrom.UNKNOWN, imageListener);
 
         // Update the caller to let them know that they should use the default bitmap.
         responseOnUiThread(imageContainer, true, imageListener);
@@ -299,7 +333,7 @@ public class ImageLoaderCompat {
                     mCache.putBitmap(cacheKey, bitmap);
                 }
 
-                imageContainer = new ImageContainer(bitmap, requestUri, cacheKey, imageListener);
+                imageContainer = new ImageContainer(bitmap, requestUri, cacheKey, LoadFrom.DISC_CACHE, imageListener);
                 responseOnUiThread(imageContainer, true, imageListener);
             }
         } else {
@@ -488,7 +522,7 @@ public class ImageLoaderCompat {
             public void onResponse(Bitmap response) {
                 onGetImageSuccess(cacheKey, response, isCacheEnable(imageLoadOption));
             }
-        }, getMaxWidth(imageLoadOption), getMaxHeight(imageLoadOption), getScaleType(imageLoadOption), Bitmap.Config.RGB_565, new Response.ErrorListener() {
+        }, getMaxWidth(imageLoadOption), getMaxHeight(imageLoadOption), getScaleType(imageLoadOption), getBitmapConfig(imageLoadOption), new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 onGetImageError(cacheKey, error);
@@ -528,6 +562,10 @@ public class ImageLoaderCompat {
 
     private ImageView.ScaleType getScaleType(ImageLoadOption imageLoadOption) {
         return imageLoadOption == null ? ImageView.ScaleType.CENTER_INSIDE : imageLoadOption.scaleType;
+    }
+
+    private Bitmap.Config getBitmapConfig(ImageLoadOption imageLoadOption) {
+        return imageLoadOption == null ? Bitmap.Config.RGB_565 : imageLoadOption.bitmapConfig;
     }
 
     private boolean isCacheEnable(ImageLoadOption imageLoadOption) {
@@ -602,7 +640,9 @@ public class ImageLoaderCompat {
         private final String mCacheKey;
 
         /** The request uri that was specified. */
-        private final String mrequestUri;
+        private final String mRequestUri;
+
+        private LoadFrom mLoadFrom;
 
         /**
          * Constructs a BitmapContainer object.
@@ -611,11 +651,12 @@ public class ImageLoaderCompat {
          * @param cacheKey The cache key that identifies the requested uri for this container.
          * @param listener {@link ImageListener}
          */
-        public ImageContainer(Bitmap bitmap, String requestUri, String cacheKey, ImageListener listener) {
+        public ImageContainer(Bitmap bitmap, String requestUri, String cacheKey, LoadFrom loadFrom, ImageListener listener) {
             mBitmap = bitmap;
-            mrequestUri = requestUri;
+            mRequestUri = requestUri;
             mCacheKey = cacheKey;
             mListener = listener;
+            mLoadFrom = loadFrom;
         }
 
         /**
@@ -657,7 +698,15 @@ public class ImageLoaderCompat {
          * @return uri
          */
         public String getRequestUri() {
-            return mrequestUri;
+            return mRequestUri;
+        }
+
+        /**
+         * get {@link LoadFrom}
+         * @return {@link LoadFrom}
+         */
+        public LoadFrom getLoadFrom() {
+            return mLoadFrom;
         }
     }
 
@@ -744,6 +793,7 @@ public class ImageLoaderCompat {
                             // If one of the callers in the batched request canceled the request
                             // after the response was received but before it was delivered,
                             // skip them.
+                            container.mLoadFrom = LoadFrom.NETWORK;
                             if (container.mListener == null) {
                                 continue;
                             }

@@ -216,4 +216,18 @@ public class RestVolleyImageLoader {
     public void removeCache(String uri, int maxWidth, int maxHeight, ImageView.ScaleType scaleType) {
         mImageLoader.removeCache(uri, maxWidth, maxHeight, scaleType);
     }
+
+    /**
+     * remove all mem cache and disk cache
+     */
+    public void removeAllCache() {
+        mRestVolleyImageCache.removeAll();
+    }
+
+    /**
+     * remove disk cache only
+     */
+    public void removeDiskCache() {
+        mRestVolleyImageCache.removeDiskCache();
+    }
 }

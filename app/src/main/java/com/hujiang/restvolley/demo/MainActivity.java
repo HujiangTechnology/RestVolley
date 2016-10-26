@@ -18,7 +18,10 @@ import android.widget.Toast;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.VolleyError;
 import com.hujiang.restvolley.TaskScheduler;
+import com.hujiang.restvolley.image.ImageDisplayer;
+import com.hujiang.restvolley.image.ImageLoadOption;
 import com.hujiang.restvolley.image.ImageLoaderCompat;
+import com.hujiang.restvolley.image.LoadFrom;
 import com.hujiang.restvolley.image.RestVolleyImageLoader;
 import com.hujiang.restvolley.webapi.RestVolleyCallback;
 import com.hujiang.restvolley.webapi.request.GetRequest;
@@ -60,8 +63,15 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.display_bitmap).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "http://st.hujiang.com/images/bg11_s.jpg";
-                RestVolleyImageLoader.instance(MainActivity.this).displayImage(url, showImage(null));
+                final String url = "http://st.hujiang.com/images/bg11_s.jpg";
+                RestVolleyImageLoader.instance(MainActivity.this).displayImage(url, showImage(null), ImageLoadOption.create()
+                    .imageDisplayer(new ImageDisplayer() {
+                        @Override
+                        public void display(Bitmap bitmap, View view, LoadFrom loadFrom) {
+                            ((ImageView)view).setImageBitmap(bitmap);
+                            Log.i(TAG, "url->" + url + ":::loadFrom->" + loadFrom);
+                        }
+                    }));
             }
         });
 

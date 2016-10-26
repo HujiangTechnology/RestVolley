@@ -31,7 +31,7 @@ import java.io.OutputStream;
  * @version 1.0.0
  * @since 2015-11-23
  */
-public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
+public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
 
     private static final int BYTES_IN_PIX = 4;
     private static final int PAGE_CACHE_COUNT = 3;
@@ -114,7 +114,27 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
                 mMemCache.put(key, bmp);
             }
         }
+
         return bmp;
+    }
+
+    @Override
+    public CacheItem getCache(String cacheKey) {
+        String key = generateKey(cacheKey);
+        LoadFrom lf = LoadFrom.UNKNOWN;
+        Bitmap bmp = mMemCache.get(key);
+        if (bmp == null) {
+            bmp = getBitmapFromDiskLruCache(key);
+            //从磁盘读出后，放入内存
+            if (bmp != null) {
+                lf = LoadFrom.DISC_CACHE;
+                mMemCache.put(key, bmp);
+            }
+        } else {
+            lf = LoadFrom.MEMORY_CACHE;
+        }
+
+        return new CacheItem(cacheKey, bmp, lf);
     }
 
     @Override
@@ -136,6 +156,40 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
             }
         }
         return false;
+    }
+
+    /**
+     * remove all mem cache and disk cache
+     * @return remove successful or not
+     */
+    public boolean removeAll() {
+        boolean isRemoved = true;
+
+        mMemCache.evictAll();
+        try {
+            mDiskCache.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+            isRemoved = false;
+        }
+
+        return isRemoved;
+    }
+
+    /**
+     * just remove disk cache only
+     * @return remove successful or not
+     */
+    public boolean removeDiskCache() {
+        boolean isRemoved = true;
+        try {
+            mDiskCache.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+            isRemoved = false;
+        }
+
+        return isRemoved;
     }
 
     /**
@@ -238,6 +292,7 @@ public class RestVolleyImageCache implements ImageLoaderCompat.ImageCache {
             cachePath = context.getCacheDir().getPath();
         }
         return new File(cachePath + File.separator + uniqueName);
+
     }
 
 }
