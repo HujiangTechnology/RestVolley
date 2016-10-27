@@ -1,6 +1,7 @@
 ### v1.0.7(2016-10-26)
 * add ImageLoadOption#imageDisplayer, ImageLoadOption#bitmapConfig
 * add method RestVolleyImageLoader#removeAllCache(), RestVolleyImageLoader#removeDiskCache()
+* add method RestVolleyImageLoader#start(), RestVolleyImageLoader#stop()
 
 ### v1.0.6(2016-10-19)
 * 解决磁盘IO异常导致磁盘缓存失效，并导致程序崩溃的问题

@@ -230,4 +230,18 @@ public class RestVolleyImageLoader {
     public void removeDiskCache() {
         mRestVolleyImageCache.removeDiskCache();
     }
+
+    /**
+     * start image load and request
+     */
+    public void start() {
+        mRequestEngine.requestQueue.start();
+    }
+
+    /**
+     * stop image load and request
+     */
+    public void stop() {
+        mRequestEngine.requestQueue.stop();
+    }
 }
