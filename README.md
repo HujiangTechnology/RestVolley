@@ -6,12 +6,12 @@ A http request engine based on [Volley] and [OkHttp], giving up Apache HttpClien
 # Dependency
 -------
 
-binary on [jcenter](https://bintray.com/firefly1126/maven/restvolley/view)
+binary on [jcenter](http://jcenter.bintray.com/com/hujiang/restvolley/restvolley/)
 
 dependency with Gradle:
 
 ```
-compile 'com.hujiang.restvolley:restvolley:1.0.6'
+compile 'com.hujiang.restvolley:restvolley:1.0.7'
 ```
 
 # Functions
