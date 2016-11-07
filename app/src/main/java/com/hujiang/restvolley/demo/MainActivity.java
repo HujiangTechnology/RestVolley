@@ -64,14 +64,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String url = "http://st.hujiang.com/images/bg11_s.jpg";
-                RestVolleyImageLoader.instance(MainActivity.this).displayImage(url, showImage(null), ImageLoadOption.create()
-                    .imageDisplayer(new ImageDisplayer() {
-                        @Override
-                        public void display(Bitmap bitmap, View view, LoadFrom loadFrom) {
-                            ((ImageView)view).setImageBitmap(bitmap);
-                            Log.i(TAG, "url->" + url + ":::loadFrom->" + loadFrom);
-                        }
-                    }));
+                RestVolleyImageLoader.instance(MainActivity.this).displayImage(url, showImage(null), new ImageDisplayer() {
+                    @Override
+                    public void display(Bitmap bitmap, View view, LoadFrom loadFrom) {
+                        ((ImageView) view).setImageBitmap(bitmap);
+                        Log.i(TAG, "url->" + url + ":::loadFrom->" + loadFrom);
+                    }
+                });
             }
         });
 

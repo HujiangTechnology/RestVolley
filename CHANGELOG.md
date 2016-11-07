@@ -1,3 +1,9 @@
+### v1.0.8(2016-11-07)
+* add method RestVolleyImageLoader#getDiskCacheDir(), RestVolleyImageLoader#getDiskCachePath()
+* add method RestVolleyImageLoader#displayImage(final String uri, final ImageView imageView, final ImageDisplayer imageDisplayer)
+* add metnod RestVolleyImageLoader#displayImage(final String uri, final ImageView imageView, final ImageLoadOption option, final ImageDisplayer displayer)
+* remove ImageDisplayer from ImageLoadOption
+
 ### v1.0.7(2016-10-26)
 * add ImageLoadOption#imageDisplayer, ImageLoadOption#bitmapConfig
 * add method RestVolleyImageLoader#removeAllCache(), RestVolleyImageLoader#removeDiskCache()

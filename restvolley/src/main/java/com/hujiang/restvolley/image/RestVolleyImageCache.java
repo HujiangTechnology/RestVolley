@@ -84,6 +84,22 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
         }
     }
 
+    public String getDiskCachePath() {
+        if (mDiskCache != null) {
+            return mDiskCache.getDirectory().getAbsolutePath();
+        }
+
+        return "";
+    }
+
+    public File getDiskCacheDir() {
+        if (mDiskCache != null) {
+            return mDiskCache.getDirectory();
+        }
+
+        return null;
+    }
+
     @Override
     public boolean isCached(String cacheKey) {
         String key = generateKey(cacheKey);

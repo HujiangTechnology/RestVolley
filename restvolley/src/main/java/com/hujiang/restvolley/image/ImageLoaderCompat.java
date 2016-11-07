@@ -155,9 +155,10 @@ public class ImageLoaderCompat {
      * @param uri image uri
      * @param view The imageView that the listener is associated with.
      * @param imageLoadOption image display option.
+     * @param displayer {@link ImageDisplayer}
      * @return {@link ImageListener}
      */
-    public static ImageListener getImageListener(final String uri, final ImageView view, final ImageLoadOption imageLoadOption) {
+    public static ImageListener getImageListener(final String uri, final ImageView view, final ImageLoadOption imageLoadOption, final ImageDisplayer displayer) {
         view.setTag(R.id.restvolley_image_imageview_tag, uri);
         return new ImageListener() {
             @Override
@@ -172,8 +173,8 @@ public class ImageLoaderCompat {
                 if (response.getBitmap() != null) {
                     if (!TextUtils.isEmpty(uri)
                             && uri.equals(view.getTag(R.id.restvolley_image_imageview_tag))) {
-                        if (imageLoadOption != null && imageLoadOption.imageDisplayer != null) {
-                            imageLoadOption.imageDisplayer.display(response.getBitmap(), view, response.getLoadFrom());
+                        if (displayer != null) {
+                            displayer.display(response.getBitmap(), view, response.getLoadFrom());
                         } else {
                             view.setImageBitmap(response.getBitmap());
 

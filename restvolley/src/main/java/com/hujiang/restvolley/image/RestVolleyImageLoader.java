@@ -14,6 +14,8 @@ import com.hujiang.restvolley.RequestEngine;
 import com.hujiang.restvolley.RestVolley;
 import com.hujiang.restvolley.TaskScheduler;
 
+import java.io.File;
+
 /**
  * image loader.support http image request, local bitmap request that on the sdcard, assets, res/drawable, res/raw, using the system ContentProvider.
  * <p></p>
@@ -88,7 +90,7 @@ public class RestVolleyImageLoader {
         TaskScheduler.execute(new Runnable() {
             @Override
             public void run() {
-                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, null));
+                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, null, null));
             }
         });
     }
@@ -103,7 +105,38 @@ public class RestVolleyImageLoader {
         TaskScheduler.execute(new Runnable() {
             @Override
             public void run() {
-                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, imageLoadOption), imageLoadOption);
+                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, imageLoadOption, null), imageLoadOption);
+            }
+        });
+    }
+
+    /**
+     * bind view
+     * @param uri uri
+     * @param imageView image view to bind bitmap
+     * @param imageDisplayer ImageDisplayer
+     */
+    public void displayImage(final String uri, final ImageView imageView, final ImageDisplayer imageDisplayer) {
+        TaskScheduler.execute(new Runnable() {
+            @Override
+            public void run() {
+                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, null, imageDisplayer));
+            }
+        });
+    }
+
+    /**
+     * bind view
+     * @param uri uri
+     * @param imageView view to bind bitmap
+     * @param option {@link ImageLoadOption}
+     * @param displayer {@link ImageDisplayer}
+     */
+    public void displayImage(final String uri, final ImageView imageView, final ImageLoadOption option, final ImageDisplayer displayer) {
+        TaskScheduler.execute(new Runnable() {
+            @Override
+            public void run() {
+                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, option, displayer), option);
             }
         });
     }
@@ -243,5 +276,21 @@ public class RestVolleyImageLoader {
      */
     public void stop() {
         mRequestEngine.requestQueue.stop();
+    }
+
+    /**
+     * return disk cache directory
+     * @return disk cache directory
+     */
+    public File getDiskCacheDir() {
+        return mRestVolleyImageCache.getDiskCacheDir();
+    }
+
+    /**
+     * return disk cache path
+     * @return disk cache path
+     */
+    public String getDiskCachePath() {
+        return mRestVolleyImageCache.getDiskCachePath();
     }
 }

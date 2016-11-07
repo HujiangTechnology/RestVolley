@@ -27,7 +27,6 @@ public class ImageLoadOption {
     boolean isCacheEnable = true;
     ImageView.ScaleType scaleType = ImageView.ScaleType.CENTER_INSIDE;
     Animation imgLoadAnimation;
-    ImageDisplayer imageDisplayer;
     Bitmap.Config bitmapConfig;
 
     private ImageLoadOption() {
@@ -116,17 +115,6 @@ public class ImageLoadOption {
      */
     public ImageLoadOption cacheEnable(boolean isCacheEnable) {
         this.isCacheEnable = isCacheEnable;
-
-        return this;
-    }
-
-    /**
-     * set {@link ImageDisplayer}
-     * @param imageDisplayer {@link ImageDisplayer}
-     * @return {@link ImageLoadOption}
-     */
-    public ImageLoadOption imageDisplayer(ImageDisplayer imageDisplayer) {
-        this.imageDisplayer = imageDisplayer;
 
         return this;
     }
