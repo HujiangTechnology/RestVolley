@@ -5,6 +5,7 @@
 * remove ImageDisplayer from ImageLoadOption
 * RestVolleyDownload增加下载临时文件，后缀为.tmp
 * 增加取消下载的接口RestVolleyDownload#cancel(), 删除接口RestVolleyDownload#cancel(Object tag)
+* fix bug: java.lang.IllegalStateException: cache is closed on DiskLruCache.java:614
 
 ### v1.0.7(2016-10-26)
 * add ImageLoadOption#imageDisplayer, ImageLoadOption#bitmapConfig

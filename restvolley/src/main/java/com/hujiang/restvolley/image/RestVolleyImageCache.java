@@ -111,7 +111,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
                 if (snapshot != null) {
                     isInDisk = snapshot.getInputStream(0) != null;
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -167,7 +167,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
         if (mDiskCache != null) {
             try {
                 return mDiskCache.remove(key);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -184,7 +184,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
         mMemCache.evictAll();
         try {
             mDiskCache.delete();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             isRemoved = false;
         }
@@ -200,7 +200,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
         boolean isRemoved = true;
         try {
             mDiskCache.delete();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             isRemoved = false;
         }
@@ -260,7 +260,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
                             outputStream.close();
                         }
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -282,7 +282,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
                     return bmp;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
