@@ -28,7 +28,20 @@ import com.hujiang.restvolley.webapi.request.GetRequest;
 import com.hujiang.restvolley.webapi.request.RestVolleyRequest;
 
 import java.io.File;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,7 +77,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String url = "http://st.hujiang.com/images/bg11_s.jpg";
-                RestVolleyImageLoader.instance(MainActivity.this).displayImage(url, showImage(null), new ImageDisplayer() {
+                RestVolleyImageLoader.instance(MainActivity.this).displayImage(url, showImage(null)
+                        , ImageLoadOption.create().bitmapConfig(Bitmap.Config.ARGB_8888)
+                        , new ImageDisplayer() {
                     @Override
                     public void display(Bitmap bitmap, View view, LoadFrom loadFrom) {
                         ((ImageView) view).setImageBitmap(bitmap);
@@ -78,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String url = "http://i2.hjfile.cn/f96/68/57/27316857.jpg";
-                RestVolleyImageLoader.instance(MainActivity.this).loadImage(url, new ImageLoaderCompat.ImageListener() {
+                RestVolleyImageLoader.instance(MainActivity.this).loadImage(url, ImageLoadOption.create().bitmapConfig(Bitmap.Config.ARGB_8888)
+                        , new ImageLoaderCompat.ImageListener() {
                     @Override
                     public void onResponse(ImageLoaderCompat.ImageContainer response, boolean isImmediate) {
                         showImage(response.getBitmap());

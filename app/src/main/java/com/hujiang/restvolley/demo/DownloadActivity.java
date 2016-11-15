@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -25,15 +26,15 @@ import java.util.List;
 
 public class DownloadActivity extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
-    private static final String TAG = "OCSDemo";
+    private static final String TAG = "DownloadActivity";
 
     private Button mAddDownloadTaskButton;
 
-    private static final String DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/";
+    private static String DOWNLOAD_DIR;
     private static final String[] DOWNLOAD_URLS = {
-            "http://app.m.hjfile.cn/android/tingliku_hjpc.apk"
+            "http://app.m.hjfile.cn/android/hjwordgames_hjpc.apk"
+            , "http://app.m.hjfile.cn/android/tingliku_hjpc.apk"
             , "http://app.m.hjfile.cn/android/hjdict_hjpc.apk"
-            , "http://app.m.hjfile.cn/android/hjwordgames_hjpc.apk"
             , "http://app.m.hjfile.cn/android/cctalk_hjpc.apk"
             , "http://app.m.hjfile.cn/android/hujiangclass3_hjpc.apk"
             , "http://app.m.hjfile.cn/android/normandy_hjpc.apk"
@@ -51,6 +52,7 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.download_layout);
+        DOWNLOAD_DIR = getExternalCacheDir().getAbsolutePath() + File.separator;
         mAddDownloadTaskButton = (Button)findViewById(R.id.add_download_task1);
         mDownloadListView = (ListView)findViewById(R.id.download_list1);
 
@@ -59,8 +61,16 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
         mDownloadListView.setOnItemClickListener(this);
 
         mAddDownloadTaskButton.setOnClickListener(this);
+
+        findViewById(R.id.cancel_download_task).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRestVolleyDownload.cancel();
+            }
+        });
     }
 
+    RestVolleyDownload mRestVolleyDownload;
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -74,8 +84,8 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
             final String path = DOWNLOAD_DIR + taskName;
             String mimeType = "application/apk";
 
-            new RestVolleyDownload(DownloadActivity.this)
-                    .url(url)
+            mRestVolleyDownload = new RestVolleyDownload(DownloadActivity.this);
+                    mRestVolleyDownload.url(url).tag(DownloadActivity.this)
                     .setTimeout(5000)
                     .download(path, new RestVolleyDownload.OnDownloadListener() {
                 @Override
@@ -113,6 +123,7 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
                     info.downloadBytes = downloadBytes;
                     info.totalSize = contentLength;
                     mDownloadAdapter.notifyDataSetChanged();
+                    Log.i(TAG, "downloadbytes:" + downloadBytes + "/" + contentLength);
                 }
             });
 
@@ -146,6 +157,9 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
             intent.setDataAndType(Uri.fromFile(new File(downloadInfo.path)), "application/vnd.android.package-archive");
             startActivity(intent);
         }
+
+        mRestVolleyDownload.cancel();
+
         mDownloadAdapter.notifyDataSetChanged();
     }
 

@@ -38,6 +38,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class RestVolleyDownload {
 
+    public static final String SUFIX_TMP = ".tmp";
+
     private static final int BUFFER_SIZE = 10240;
 
     private static final String DOWNLOAD_REQUEST_ENGINE_TAG = "download";
@@ -47,6 +49,7 @@ public class RestVolleyDownload {
     private Request.Builder mRequestBuilder;
     private OkHttpClient mOkHttpClient;
     private boolean mIsAppend;
+    private boolean mIsCanceled;
 
     /**
      * constructor with default {@link RequestEngine} that created by {@link RestVolley#getDefaultRequestEngine(Context)}.
@@ -201,12 +204,8 @@ public class RestVolleyDownload {
         return mIsAppend;
     }
 
-    /**
-     * cancel the download event with the specified tag.
-     * @param tag tag.
-     */
-    public void cancel(Object tag) {
-        mOkHttpClient.cancel(tag);
+    public void cancel() {
+        mIsCanceled = true;
     }
 
     /**
@@ -257,11 +256,9 @@ public class RestVolleyDownload {
             @Override
             public void onResponse(Response response) throws IOException {
                 //new download file
-                final File localFile = newFile(localPath);
+                final File localFile = newFile(localPath + SUFIX_TMP);
                 //write stream
-                writeStream2File(response, localFile, mIsAppend, listener);
-
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && writeStream2File(response, localFile, mIsAppend, listener)) {
                     notifyDownloadSuccess(request.urlString(), localFile, response.code(), response.headers(), listener);
                 } else {
                     notifyDownloadError(request.urlString(), new Exception(""), response.code(), response.headers(), listener);
@@ -287,13 +284,13 @@ public class RestVolleyDownload {
      * @return {@link DownloadResponse}
      */
     public DownloadResponse syncDownload(String localPath) {
-        File localFile = newFile(localPath);
+        File localFile = newFile(localPath + SUFIX_TMP);
         DownloadResponse downloadResponse = new DownloadResponse();
         try {
             Response result = mOkHttpClient.newCall(mRequestBuilder.build()).execute();
             //write stream to file
-            writeStream2File(result, localFile, mIsAppend, null);
-            downloadResponse = new DownloadResponse(localFile, result.headers(), result.code(), result.message());
+            File resultFile  = writeStream2File(result, localFile, mIsAppend, null) ? new File(localPath) : localFile;
+            downloadResponse = new DownloadResponse(resultFile, result.headers(), result.code(), result.message());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -348,12 +345,20 @@ public class RestVolleyDownload {
 
         if (inputStream != null) {
             FileOutputStream buffer = new FileOutputStream(localFile, isAppend);
+            long count = 0;
             try {
                 byte[] tmp = new byte[BUFFER_SIZE];
                 int l;
-                long count = 0;
                 // do not send messages if request has been cancelled
-                while ((l = inputStream.read(tmp)) != -1 && !Thread.currentThread().isInterrupted()) {
+                while (!Thread.currentThread().isInterrupted()) {
+                    if (mIsCanceled) {
+                        break;
+                    }
+                    l = inputStream.read(tmp);
+                    if (l == -1) {
+                        break;
+                    }
+
                     count += l;
                     buffer.write(tmp, 0, l);
 
@@ -364,6 +369,10 @@ public class RestVolleyDownload {
                 e.printStackTrace();
                 notifyDownloadError(response.request().urlString(), e, response.code(), response.headers(), listener);
             } finally {
+                if (count == totalBytes) {
+                    String tmpFilePath = localFile.getAbsolutePath();
+                    localFile.renameTo(new File(tmpFilePath.substring(0, tmpFilePath.indexOf(SUFIX_TMP))));
+                }
                 inputStream.close();
 
                 if (buffer != null) {
@@ -372,7 +381,7 @@ public class RestVolleyDownload {
                 }
             }
 
-            return true;
+            return count == totalBytes;
         }
         return false;
     }
