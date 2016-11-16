@@ -259,7 +259,8 @@ public class RestVolleyDownload {
                 final File localFile = newFile(localPath + SUFIX_TMP);
                 //write stream
                 if (response.isSuccessful() && writeStream2File(response, localFile, mIsAppend, listener)) {
-                    notifyDownloadSuccess(request.urlString(), localFile, response.code(), response.headers(), listener);
+                    notifyDownloadSuccess(request.urlString(), new File(localFile.getAbsolutePath().substring(0, localFile.getAbsolutePath().indexOf(SUFIX_TMP)))
+                            , response.code(), response.headers(), listener);
                 } else {
                     notifyDownloadError(request.urlString(), new Exception(""), response.code(), response.headers(), listener);
                 }

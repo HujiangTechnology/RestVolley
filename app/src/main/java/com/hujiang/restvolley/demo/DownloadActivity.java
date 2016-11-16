@@ -108,6 +108,7 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
                     info.status = DownloadInfo.STATUS_COMPLETE;
                     info.downloadBytes = info.totalSize;
                     mDownloadAdapter.notifyDataSetChanged();
+                    Log.i(TAG, file.getAbsolutePath());
                 }
 
                 @Override
