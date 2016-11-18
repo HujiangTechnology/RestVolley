@@ -8,6 +8,7 @@ package com.hujiang.restvolley.image;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.hujiang.restvolley.RequestEngine;
@@ -219,6 +220,38 @@ public class RestVolleyImageLoader {
      */
     public boolean isCached(String uri) {
         return mImageLoader.isCached(uri, 0, 0);
+    }
+
+    /**
+     * get the disk cache path with the specified uri
+     * @param uri image requested uri
+     * @return disk cache path
+     */
+    public String getDiskCachePath(String uri) {
+        return getDiskCachePath(uri, 0, 0);
+    }
+
+    /**
+     * get the disk cache path with the specified uri, width, height
+     * @param uri image requested uri
+     * @param maxWidth width
+     * @param maxHeight height
+     * @return disk cache path
+     */
+    public String getDiskCachePath(String uri, int maxWidth, int maxHeight) {
+        return getDiskCachePath(uri, maxWidth, maxHeight, ImageView.ScaleType.CENTER_INSIDE);
+    }
+
+    /**
+     * get the disk cache path with the specified uri, width, height, scaleType
+     * @param uri image request uri
+     * @param maxWidth width
+     * @param maxHeight height
+     * @param scaleType scale type
+     * @return disk cache path
+     */
+    public String getDiskCachePath(String uri, int maxWidth, int maxHeight, ImageView.ScaleType scaleType) {
+        return mRestVolleyImageCache.getDiskCachePath(ImageLoaderCompat.generateCacheKey(uri, maxWidth, maxHeight, scaleType));
     }
 
     /**
