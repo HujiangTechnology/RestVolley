@@ -23,6 +23,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.hujiang.restvolley.R;
+import com.hujiang.restvolley.TaskScheduler;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -298,15 +299,33 @@ public class ImageLoaderCompat {
      * @return A container object that contains all of the properties of the request, as well as
      *     the currently available image (default if remote is not loaded).
      */
-    public ImageContainer load(String requestUri, ImageListener imageListener, ImageLoadOption imageLoadOption) {
+    public ImageContainer load(final String requestUri, final ImageListener imageListener, final ImageLoadOption imageLoadOption) {
 
-        int maxWidth = getMaxWidth(imageLoadOption);
-        int maxHeight = getMaxHeight(imageLoadOption);
-        ImageView.ScaleType scaleType = getScaleType(imageLoadOption);
-        boolean isCacheEnable = isCacheEnable(imageLoadOption);
+        final int maxWidth = getMaxWidth(imageLoadOption);
+        final int maxHeight = getMaxHeight(imageLoadOption);
+        final ImageView.ScaleType scaleType = getScaleType(imageLoadOption);
+        final boolean isCacheEnable = isCacheEnable(imageLoadOption);
 
         final String cacheKey = generateCacheKey(requestUri, maxWidth, maxHeight, scaleType);
 
+        // The bitmap did not exist in the cache, fetch it!
+        final ImageContainer imageContainer = new ImageContainer(null, requestUri, cacheKey, LoadFrom.UNKNOWN, imageListener);
+
+        // Update the caller to let them know that they should use the default bitmap.
+        responseOnUiThread(imageContainer, true, imageListener);
+
+        TaskScheduler.execute(new Runnable() {
+            @Override
+            public void run() {
+                innerLoad(requestUri, imageListener, imageLoadOption, maxWidth, maxHeight, scaleType, cacheKey, isCacheEnable, imageContainer);
+            }
+        });
+        return imageContainer;
+    }
+
+    private ImageContainer innerLoad(String requestUri, ImageListener imageListener, ImageLoadOption imageLoadOption, int maxWidth, int maxHeight
+            , ImageView.ScaleType scaleType
+            , String cacheKey, boolean isCacheEnable, ImageContainer imageContainer) {
         if (isCacheEnable) {
             // Try to look up the request in the cache of remote images.
             ImageCache.CacheItem cacheItem = mCache.getCache(cacheKey);
@@ -317,12 +336,6 @@ public class ImageLoaderCompat {
                 return container;
             }
         }
-
-        // The bitmap did not exist in the cache, fetch it!
-        ImageContainer imageContainer = new ImageContainer(null, requestUri, cacheKey, LoadFrom.UNKNOWN, imageListener);
-
-        // Update the caller to let them know that they should use the default bitmap.
-        responseOnUiThread(imageContainer, true, imageListener);
 
         if (isLocalRequest(requestUri)) {
             //load bitmap from local

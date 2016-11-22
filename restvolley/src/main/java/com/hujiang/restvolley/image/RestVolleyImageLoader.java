@@ -88,12 +88,7 @@ public class RestVolleyImageLoader {
      * @param imageView image view
      */
     public void displayImage(final String uri, final ImageView imageView) {
-        TaskScheduler.execute(new Runnable() {
-            @Override
-            public void run() {
-                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, null, null));
-            }
-        });
+        mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, null, null));
     }
 
     /**
@@ -103,12 +98,7 @@ public class RestVolleyImageLoader {
      * @param imageLoadOption {@link ImageLoadOption}
      */
     public void displayImage(final String uri, final ImageView imageView, final ImageLoadOption imageLoadOption) {
-        TaskScheduler.execute(new Runnable() {
-            @Override
-            public void run() {
-                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, imageLoadOption, null), imageLoadOption);
-            }
-        });
+        mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, imageLoadOption, null), imageLoadOption);
     }
 
     /**
@@ -118,12 +108,7 @@ public class RestVolleyImageLoader {
      * @param imageDisplayer ImageDisplayer
      */
     public void displayImage(final String uri, final ImageView imageView, final ImageDisplayer imageDisplayer) {
-        TaskScheduler.execute(new Runnable() {
-            @Override
-            public void run() {
-                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, null, imageDisplayer));
-            }
-        });
+        mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, null, imageDisplayer));
     }
 
     /**
@@ -134,12 +119,7 @@ public class RestVolleyImageLoader {
      * @param displayer {@link ImageDisplayer}
      */
     public void displayImage(final String uri, final ImageView imageView, final ImageLoadOption option, final ImageDisplayer displayer) {
-        TaskScheduler.execute(new Runnable() {
-            @Override
-            public void run() {
-                mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, option, displayer), option);
-            }
-        });
+        mImageLoader.load(uri, ImageLoaderCompat.getImageListener(uri, imageView, option, displayer), option);
     }
 
     /**
@@ -148,12 +128,7 @@ public class RestVolleyImageLoader {
      * @param listener {@link ImageLoaderCompat.ImageListener}
      */
     public void loadImage(final String uri, final ImageLoaderCompat.ImageListener listener) {
-        TaskScheduler.execute(new Runnable() {
-            @Override
-            public void run() {
-                mImageLoader.load(uri, listener);
-            }
-        });
+        mImageLoader.load(uri, listener);
     }
 
     /**
@@ -163,12 +138,7 @@ public class RestVolleyImageLoader {
      * @param listener {@link ImageLoaderCompat.ImageListener}
      */
     public void loadImage(final String uri, final ImageLoadOption imageLoadOption, final ImageLoaderCompat.ImageListener listener) {
-        TaskScheduler.execute(new Runnable() {
-            @Override
-            public void run() {
-                mImageLoader.load(uri, listener, imageLoadOption);
-            }
-        });
+        mImageLoader.load(uri, listener, imageLoadOption);
     }
 
     /**
