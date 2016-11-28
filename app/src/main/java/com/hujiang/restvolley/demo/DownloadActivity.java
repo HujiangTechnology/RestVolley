@@ -32,7 +32,8 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
 
     private static String DOWNLOAD_DIR;
     private static final String[] DOWNLOAD_URLS = {
-            "http://app.m.hjfile.cn/android/hjwordgames_hjpc.apk"
+            "http://m.hujiang.com/ar_69/?source=tingliku"
+            , "http://app.m.hjfile.cn/android/hjwordgames_hjpc.apk"
             , "http://app.m.hjfile.cn/android/tingliku_hjpc.apk"
             , "http://app.m.hjfile.cn/android/hjdict_hjpc.apk"
             , "http://app.m.hjfile.cn/android/cctalk_hjpc.apk"
