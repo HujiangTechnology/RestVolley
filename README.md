@@ -11,7 +11,7 @@ binary on [jcenter](http://jcenter.bintray.com/com/hujiang/restvolley/restvolley
 dependency with Gradle:
 
 ```
-compile 'com.hujiang.restvolley:restvolley:1.0.7'
+compile 'com.hujiang.restvolley:restvolley:1.0.9'
 ```
 
 # Functions
