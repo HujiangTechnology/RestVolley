@@ -1,5 +1,6 @@
 ### v1.0.9(2016-11-28)
 * fix: no onDownloadFailure callback when SDCard is full
+* recover API RestVolleyDownload#cancel(tag)
 
 ### v1.0.8(2016-11-07)
 * add method RestVolleyImageLoader#getDiskCacheDir(), RestVolleyImageLoader#getDiskCachePath()

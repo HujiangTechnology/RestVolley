@@ -67,7 +67,6 @@ public class RestVolleyDownload {
         mRequestBuilder = new Request.Builder();
         mRequestBuilder.get();
         mOkHttpClient = requestEngine.okHttpClient;
-        mOkHttpClient.setFollowRedirects(true);
     }
 
     /**
@@ -206,6 +205,17 @@ public class RestVolleyDownload {
 
     public void cancel() {
         mIsCanceled = true;
+        mOkHttpClient.cancel(mRequestBuilder.build().tag());
+    }
+
+    /**
+     * cancel the download event with the specified tag.
+     * @param tag tag.
+     */
+    @Deprecated
+    public void cancel(Object tag) {
+        mIsCanceled = true;
+        mOkHttpClient.cancel(tag);
     }
 
     /**
