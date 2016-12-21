@@ -24,6 +24,7 @@ import com.hujiang.restvolley.image.ImageLoaderCompat;
 import com.hujiang.restvolley.image.LoadFrom;
 import com.hujiang.restvolley.image.RestVolleyImageLoader;
 import com.hujiang.restvolley.webapi.RestVolleyCallback;
+import com.hujiang.restvolley.webapi.RestVolleyResponse;
 import com.hujiang.restvolley.webapi.request.GetRequest;
 import com.hujiang.restvolley.webapi.request.RestVolleyRequest;
 

@@ -257,12 +257,18 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
         RestVolleyResponse<DATA> response = new RestVolleyResponse<DATA>(-1, null, null, false, 0, null);
         try {
             response = future.get();
-        } catch (InterruptedException e) {
-            response.exception = e;
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            response.exception = e;
-            e.printStackTrace();
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof VolleyError) {
+                response.exception = (Exception) cause;
+                response.message = cause.getMessage();
+                NetworkResponse networkResponse = ((VolleyError) cause).networkResponse;
+                response.statusCode = networkResponse.statusCode;
+                response.headers = networkResponse != null ? networkResponse.headers : response.headers;
+                response.networkTimeMs = networkResponse != null ? networkResponse.networkTimeMs : response.networkTimeMs;
+                response.notModified = networkResponse != null ? networkResponse.notModified : response.notModified;
+                response.data = (DATA)mVolleyRequest.parseNetworkResponse2RestVolleyResponse(networkResponse).data;
+            }
         }
 
         return response;
@@ -783,8 +789,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
             mClassT = classT;
         }
 
-        @Override
-        protected Response<RestVolleyResponse<T>> parseNetworkResponse(NetworkResponse response) {
+        protected RestVolleyResponse<T> parseNetworkResponse2RestVolleyResponse(NetworkResponse response) {
             RestVolleyResponse<T> result;
             if (mClassT == String.class) {
                 //
@@ -805,7 +810,12 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                         , data == null ? s : "");
             }
 
-            return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
+            return result;
+        }
+
+        @Override
+        protected Response<RestVolleyResponse<T>> parseNetworkResponse(NetworkResponse response) {
+            return Response.success(parseNetworkResponse2RestVolleyResponse(response), HttpHeaderParser.parseCacheHeaders(response));
         }
 
         @Override

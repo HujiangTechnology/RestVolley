@@ -1,3 +1,6 @@
+### v1.0.10(2016-12-21)
+ * 解决当网络请求发生VolleyError时同步接口syncExecute(...)返回数据异常的Bug
+
 ### v1.0.9(2016-11-28)
 * fix: no onDownloadFailure callback when SDCard is full
 * recover API RestVolleyDownload#cancel(tag)
