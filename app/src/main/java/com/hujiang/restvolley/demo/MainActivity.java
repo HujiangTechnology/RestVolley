@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.VolleyError;
 import com.hujiang.restvolley.TaskScheduler;
+import com.hujiang.restvolley.download.RestVolleyDownload;
 import com.hujiang.restvolley.image.ImageDisplayer;
 import com.hujiang.restvolley.image.ImageLoadOption;
 import com.hujiang.restvolley.image.ImageLoaderCompat;
@@ -27,6 +28,7 @@ import com.hujiang.restvolley.webapi.RestVolleyCallback;
 import com.hujiang.restvolley.webapi.RestVolleyResponse;
 import com.hujiang.restvolley.webapi.request.GetRequest;
 import com.hujiang.restvolley.webapi.request.RestVolleyRequest;
+import com.squareup.okhttp.Headers;
 
 import java.io.File;
 import java.security.KeyStore;

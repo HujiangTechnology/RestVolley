@@ -270,10 +270,10 @@ public class RestVolleyDownload {
                     final File localFile = newFile(localPath + SUFIX_TMP);
                     //write stream
                     if (response.isSuccessful() && writeStream2File(response, localFile, mIsAppend, listener)) {
-                        notifyDownloadSuccess(request.urlString(), new File(localFile.getAbsolutePath().substring(0, localFile.getAbsolutePath().indexOf(SUFIX_TMP)))
-                                , response.code(), response.headers(), listener);
+                        notifyDownloadSuccess(request.urlString(), new File(localPath), response.code(), response.headers(), listener);
                     } else {
-                        notifyDownloadError(request.urlString(), new Exception(""), response.code(), response.headers(), listener);
+                        notifyDownloadError(request.urlString(), new Exception("download does not complete:" + localFile.getAbsolutePath())
+                                , response.code(), response.headers(), listener);
                     }
                 } catch (Exception e) {
                    notifyDownloadError(request.urlString(), e, response.code(), response.headers(), listener);
@@ -306,7 +306,7 @@ public class RestVolleyDownload {
             //write stream to file
             File resultFile  = writeStream2File(result, localFile, mIsAppend, null) ? new File(localPath) : localFile;
             downloadResponse = new DownloadResponse(resultFile, result.headers(), result.code(), result.message());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -348,14 +348,14 @@ public class RestVolleyDownload {
     }
 
     private boolean writeStream2File(final Response response, final File localFile, final boolean isAppend
-            , final OnDownloadListener listener) throws IOException {
+            , final OnDownloadListener listener) throws Exception {
         ResponseBody body = response.body();
         InputStream inputStream = body.byteStream();
         long totalBytes = 0;
         try {
             totalBytes = Long.parseLong(response.header(RestVolley.HEADER_CONTENT_LENGTH));
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            throw e;
         }
 
         if (inputStream != null) {
@@ -381,8 +381,7 @@ public class RestVolleyDownload {
                             , response.headers(), listener);
                 }
             } catch(Exception e) {
-                e.printStackTrace();
-                notifyDownloadError(response.request().urlString(), e, response.code(), response.headers(), listener);
+                throw e;
             } finally {
                 if (count == totalBytes) {
                     String tmpFilePath = localFile.getAbsolutePath();
