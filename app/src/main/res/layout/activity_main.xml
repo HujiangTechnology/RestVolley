@@ -16,10 +16,10 @@
         tools:showIn="@layout/activity_main"
         android:orientation="vertical">
         <Button
-            android:id="@+id/file_img_btn"
+            android:id="@+id/image_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="sdcard图片显示"/>
+            android:text="图片列表显示"/>
         <Button
             android:id="@+id/asset_img_btn"
             android:layout_width="match_parent"

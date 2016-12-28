@@ -6,9 +6,19 @@
 
 package com.hujiang.restvolley.image;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
+import android.net.Uri;
+import android.util.Log;
 import android.widget.ImageView;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * parse and resize the bitmap as needed.
@@ -18,6 +28,9 @@ import android.widget.ImageView;
  * @since 2016-01-07
  */
 public class ImageProcessor {
+
+    public static final int BYTE_IN_PIX = 4;
+    public static long MAX_BMP_SIZE = 0;
 
     /**
      * Scales one side of a rectangle to fit aspect ratio.
@@ -74,35 +87,58 @@ public class ImageProcessor {
     }
 
     /**
-     * The real guts of parseNetworkResponse. Broken out for readability.
-     * @param data bitmap data
-     * @param maxWidth max width
-     * @param maxHeight max height
-     * @param scaleType {@link android.widget.ImageView.ScaleType}
-     * @param config {@link android.graphics.Bitmap.Config}
-     * @return {@link Bitmap}
+     * decode uri to bitmap
+     * @param context Context
+     * @param uri uri
+     * @param maxWidth width
+     * @param maxHeight height
+     * @param scaleType scale type
+     * @param config Bitmap.Config
+     * @return
      */
-    public static Bitmap doParse(byte[] data, int maxWidth, int maxHeight, ImageView.ScaleType scaleType, Bitmap.Config config) {
+    public static Bitmap decode(Context context, String uri, int maxWidth, int maxHeight, ImageView.ScaleType scaleType, Bitmap.Config config) {
         BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
+        decodeOptions.inJustDecodeBounds = true;
+
+        InputStream stream = decode2Stream(context, uri);
+        if (stream == null) {
+            return null;
+        }
+        BitmapFactory.decodeStream(stream, null, decodeOptions);
+        int actualWidth = decodeOptions.outWidth;
+        int actualHeight = decodeOptions.outHeight;
+
+        try {
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        stream = decode2Stream(context, uri);
         Bitmap bitmap;
         if (maxWidth == 0 && maxHeight == 0) {
-            decodeOptions.inPreferredConfig = config;
-            bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-        } else {
-            // If we have to resize this image, first get the natural bounds.
-            decodeOptions.inJustDecodeBounds = true;
-            BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-            int actualWidth = decodeOptions.outWidth;
-            int actualHeight = decodeOptions.outHeight;
+            int sampleSize = 1;
+            long desired_size = actualWidth * actualHeight * BYTE_IN_PIX;
+            while (desired_size > MAX_BMP_SIZE) {
+                desired_size = actualWidth * actualHeight * BYTE_IN_PIX / sampleSize / sampleSize;
+                sampleSize *= 2;
+            }
 
+            decodeOptions.inJustDecodeBounds = false;
+            decodeOptions.inSampleSize = sampleSize;
+            decodeOptions.inPreferredConfig = config;
+
+            bitmap = BitmapFactory.decodeStream(stream, null, decodeOptions);
+        } else {
             // Then compute the dimensions we would ideally like to decode to.
             int desiredWidth = getResizedDimension(maxWidth, maxHeight, actualWidth, actualHeight, scaleType);
             int desiredHeight = getResizedDimension(maxHeight, maxWidth, actualHeight, actualWidth, scaleType);
 
             // Decode to the nearest power of two scaling factor.
             decodeOptions.inJustDecodeBounds = false;
+            decodeOptions.inPreferredConfig = config;
             decodeOptions.inSampleSize = findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
-            Bitmap tempBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+            Bitmap tempBitmap = BitmapFactory.decodeStream(stream, null, decodeOptions);
 
             // If necessary, scale down to the maximal acceptable size.
             if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth || tempBitmap.getHeight() > desiredHeight)) {
@@ -113,7 +149,58 @@ public class ImageProcessor {
             }
         }
 
+        try {
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return bitmap;
+    }
+
+    private static InputStream decode2Stream(Context context, String uri) {
+        BufferedInputStream imageStream = null;
+        String filePath;
+        try {
+            switch (ImageLoaderCompat.Scheme.ofUri(uri)) {
+                case FILE:
+                    filePath = ImageLoaderCompat.Scheme.FILE.crop(uri);
+                    try {
+                        imageStream = new BufferedInputStream(new FileInputStream(filePath));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    break;
+                case CONTENT:
+                    try {
+                        imageStream = new BufferedInputStream(context.getContentResolver().openInputStream(Uri.parse(uri)));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case ASSETS:
+                    filePath = ImageLoaderCompat.Scheme.ASSETS.crop(uri);
+                    try {
+                        imageStream = new BufferedInputStream(context.getAssets().open(filePath));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case DRAWABLE:
+                    String drawableIdString = ImageLoaderCompat.Scheme.DRAWABLE.crop(uri);
+                    int drawableId = Integer.parseInt(drawableIdString);
+                    imageStream = new BufferedInputStream(context.getResources().openRawResource(drawableId));
+                    break;
+                case UNKNOWN:
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return imageStream;
     }
 
     /**
@@ -126,6 +213,10 @@ public class ImageProcessor {
      * @return best sample size.
      */
     public static int findBestSampleSize(int actualWidth, int actualHeight, int desiredWidth, int desiredHeight) {
+        if (desiredHeight == 0 || desiredWidth == 0) {
+            return 1;
+        }
+
         double wr = (double) actualWidth / desiredWidth;
         double hr = (double) actualHeight / desiredHeight;
         double ratio = Math.min(wr, hr);
@@ -135,5 +226,31 @@ public class ImageProcessor {
         }
 
         return (int) n;
+    }
+
+    /**
+     * decode local bitmap file
+     * @param filePath local bitmap file path
+     * @return Bitmap
+     */
+    public static Bitmap decode(String filePath) {
+        BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
+        decodeOptions.inJustDecodeBounds = true;
+
+        BitmapFactory.decodeFile(filePath, decodeOptions);
+        int actualWidth = decodeOptions.outWidth;
+        int actualHeight = decodeOptions.outHeight;
+
+        int sampleSize = 1;
+        long desired_size = actualWidth * actualHeight * ImageProcessor.BYTE_IN_PIX;
+        while (desired_size > ImageProcessor.MAX_BMP_SIZE) {
+            desired_size = actualWidth * actualHeight * ImageProcessor.BYTE_IN_PIX / sampleSize / sampleSize;
+            sampleSize *= 2;
+        }
+
+        decodeOptions.inJustDecodeBounds = false;
+        decodeOptions.inSampleSize = sampleSize;
+
+        return BitmapFactory.decodeFile(filePath, decodeOptions);
     }
 }

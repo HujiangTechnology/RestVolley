@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.hujiang.restvolley.demo"
-          xmlns:tools="http://schemas.android.com/tools"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -17,15 +17,14 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
-        android:name="com.hujiang.restvolley.demo.DemoApplication"
+        android:name=".DemoApplication"
         android:allowBackup="true"
         android:label="网络模块Demo"
         android:supportsRtl="true"
-        tools:replace="android:label"
-        android:theme="@style/AppTheme">
-
+        android:theme="@style/AppTheme"
+        tools:replace="android:label">
         <activity
-            android:name="com.hujiang.restvolley.demo.MainActivity"
+            android:name=".MainActivity"
             android:label="网络模块Demo"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -35,6 +34,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".DownloadActivity"/>
+        <activity android:name=".ImageListActivity">
+        </activity>
     </application>
 
 </manifest>

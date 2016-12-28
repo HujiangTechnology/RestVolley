@@ -8,12 +8,10 @@ package com.hujiang.restvolley.image;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.hujiang.restvolley.RequestEngine;
 import com.hujiang.restvolley.RestVolley;
-import com.hujiang.restvolley.TaskScheduler;
 
 import java.io.File;
 
@@ -42,6 +40,7 @@ public class RestVolleyImageLoader {
     private Context mContext;
 
     private RestVolleyImageLoader(Context context) {
+        ImageProcessor.MAX_BMP_SIZE = Runtime.getRuntime().freeMemory();
         mContext = context.getApplicationContext();
 
         mRequestEngine = RestVolley.newRequestEngine(context, IMAGE_REQUEST_ENGINE_TAG);

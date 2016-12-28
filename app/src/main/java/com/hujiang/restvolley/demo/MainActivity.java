@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mFileImgButton = (Button)findViewById(R.id.file_img_btn);
+        mFileImgButton = (Button)findViewById(R.id.image_list);
         mAssetsImgButton = (Button)findViewById(R.id.asset_img_btn);
         mContentImgButton = (Button)findViewById(R.id.content_img_btn);
         mDrawableImgButton = (Button)findViewById(R.id.drawable_btn);
@@ -77,7 +77,10 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.display_bitmap).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String url = "http://st.hujiang.com/images/bg11_s.jpg";
+//                file:///mnt/sdcard/8544-5696.png
+//                file:///mnt/sdcard/p1.jpg
+                final String url = "file:///mnt/sdcard/8544-5696.png";
+
                 RestVolleyImageLoader.instance(MainActivity.this).displayImage(url, showImage(null)
                         , ImageLoadOption.create().bitmapConfig(Bitmap.Config.ARGB_8888)
                         , new ImageDisplayer() {
@@ -267,14 +270,8 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             int id = v.getId();
             Context context = MainActivity.this;
-            if (id == R.id.file_img_btn) {
-                String path = "/mnt/sdcard/img_default.jpg";
-                if (!new File(path).exists()) {
-                    Toast.makeText(MainActivity.this, "缺少磁盘文件/sdcard/img_default.jpg", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                path = "file://" + path;
-                RestVolleyImageLoader.instance(context).displayImage(path, showImage(null));
+            if (id == R.id.image_list) {
+                startActivity(new Intent(MainActivity.this, ImageListActivity.class));
             } else if (id == R.id.asset_img_btn) {
                 String path = "assets://assets_default.png";
                 RestVolleyImageLoader.instance(context).displayImage(path, showImage(null));

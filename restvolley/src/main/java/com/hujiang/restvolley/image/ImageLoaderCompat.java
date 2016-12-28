@@ -6,13 +6,18 @@
 
 package com.hujiang.restvolley.image;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.text.format.Formatter;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.android.volley.Request;
@@ -165,7 +170,11 @@ public class ImageLoaderCompat {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (imageLoadOption != null) {
-                    view.setImageResource(imageLoadOption.errorImgResId);
+                    try {
+                        view.setImageResource(imageLoadOption.errorImgResId);
+                    } catch (Resources.NotFoundException e) {
+
+                    }
                 }
             }
 
@@ -339,7 +348,7 @@ public class ImageLoaderCompat {
 
         if (isLocalRequest(requestUri)) {
             //load bitmap from local
-            Bitmap bitmap = loadFromLocal(requestUri, cacheKey, maxWidth, maxHeight, scaleType);
+            Bitmap bitmap = loadFromLocal(mContext, requestUri, maxWidth, maxHeight, scaleType);
             if (bitmap == null) {
                 responseErrorOnUiThread(imageContainer, new VolleyError("bitmap is null"), imageListener);
             } else {
@@ -403,62 +412,14 @@ public class ImageLoaderCompat {
     /**
      * load image from local.
      * @param uri local image uri
-     * @param cacheKey cache key
      * @param width with
      * @param height height
      * @param scaleType {@link android.widget.ImageView.ScaleType}
      */
-    private Bitmap loadFromLocal(String uri, String cacheKey, int width, int height, ImageView.ScaleType scaleType) {
+    private Bitmap loadFromLocal(Context context, String uri, int width, int height, ImageView.ScaleType scaleType) {
+        Bitmap bitmap = ImageProcessor.decode(context, uri, width, height, scaleType, Bitmap.Config.RGB_565);
 
-        BufferedInputStream imageStream = null;
-        String filePath = null;
-        switch (Scheme.ofUri(uri)) {
-            case FILE:
-                filePath = Scheme.FILE.crop(uri);
-                try {
-                    imageStream = new BufferedInputStream(new FileInputStream(filePath));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                break;
-            case CONTENT:
-                try {
-                    imageStream = new BufferedInputStream(mContext.getContentResolver().openInputStream(Uri.parse(uri)));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case ASSETS:
-                filePath = Scheme.ASSETS.crop(uri);
-                try {
-                    imageStream = new BufferedInputStream(mContext.getAssets().open(filePath));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case DRAWABLE:
-                String drawableIdString = Scheme.DRAWABLE.crop(uri);
-                int drawableId = Integer.parseInt(drawableIdString);
-                imageStream = new BufferedInputStream(mContext.getResources().openRawResource(drawableId));
-                break;
-            case UNKNOWN:
-                default:
-                break;
-        }
-        if (imageStream != null) {
-            Bitmap bitmap = ImageProcessor.doParse(inputStream2Bytes(imageStream), width, height, scaleType, Bitmap.Config.RGB_565);
-
-            try {
-                imageStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return bitmap;
-        }
-
-        return null;
+        return bitmap;
     }
 
     private boolean isLocalRequest(String uri) {
@@ -506,7 +467,7 @@ public class ImageLoaderCompat {
 
         if (isLocalRequest(requestUri)) {
             //load bitmap from local
-            bitmap = loadFromLocal(requestUri, cacheKey, maxWidth, maxHeight, scaleType);
+            bitmap = loadFromLocal(mContext, requestUri, maxWidth, maxHeight, scaleType);
         } else {
             //load bitmap from network
             RequestFuture<Bitmap> future = RequestFuture.newFuture();
