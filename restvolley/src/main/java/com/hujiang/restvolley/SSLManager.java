@@ -6,6 +6,8 @@
 
 package com.hujiang.restvolley;
 
+import com.squareup.okhttp.internal.tls.OkHostnameVerifier;
+
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -31,7 +33,7 @@ public class SSLManager {
     private static SSLManager sInstance;
 
     private SSLContext mSSLContext;
-    private HostnameVerifier mHostnameVerifier = ALLOW_ALL_HOSTNAME_VERIFIER;
+    private HostnameVerifier mHostnameVerifier = OkHostnameVerifier.INSTANCE;//ALLOW_ALL_HOSTNAME_VERIFIER;
 
     private TrustManager mTrustManager = new X509TrustManager() {
         @Override

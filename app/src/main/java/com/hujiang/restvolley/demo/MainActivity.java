@@ -1,332 +1,62 @@
 package com.hujiang.restvolley.demo;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.VolleyError;
-import com.hujiang.restvolley.TaskScheduler;
-import com.hujiang.restvolley.download.RestVolleyDownload;
-import com.hujiang.restvolley.image.ImageDisplayer;
-import com.hujiang.restvolley.image.ImageLoadOption;
-import com.hujiang.restvolley.image.ImageLoaderCompat;
-import com.hujiang.restvolley.image.LoadFrom;
-import com.hujiang.restvolley.image.RestVolleyImageLoader;
-import com.hujiang.restvolley.webapi.RestVolleyCallback;
-import com.hujiang.restvolley.webapi.RestVolleyResponse;
-import com.hujiang.restvolley.webapi.request.GetRequest;
-import com.hujiang.restvolley.webapi.request.RestVolleyRequest;
-import com.squareup.okhttp.Headers;
-
-import java.io.File;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    
-    private Button mFileImgButton;
-    private Button mAssetsImgButton;
-    private Button mContentImgButton;
-    private Button mDrawableImgButton;
-    private Button mRawImgButton;
-    private Button mDownloadButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mFileImgButton = (Button)findViewById(R.id.image_list);
-        mAssetsImgButton = (Button)findViewById(R.id.asset_img_btn);
-        mContentImgButton = (Button)findViewById(R.id.content_img_btn);
-        mDrawableImgButton = (Button)findViewById(R.id.drawable_btn);
-        mRawImgButton = (Button)findViewById(R.id.raw_btn);
-        mDownloadButton = (Button)findViewById(R.id.download_btn);
-
-        mFileImgButton.setOnClickListener(mOnClickListener);
-        mAssetsImgButton.setOnClickListener(mOnClickListener);
-        mContentImgButton.setOnClickListener(mOnClickListener);
-        mDrawableImgButton.setOnClickListener(mOnClickListener);
-        mRawImgButton.setOnClickListener(mOnClickListener);
-        mDownloadButton.setOnClickListener(mOnClickListener);
-
-        findViewById(R.id.display_bitmap).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_restful_api).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                file:///mnt/sdcard/8544-5696.png
-//                file:///mnt/sdcard/p1.jpg
-                final String url = "file:///mnt/sdcard/8544-5696.png";
-
-                RestVolleyImageLoader.instance(MainActivity.this).displayImage(url, showImage(null)
-                        , ImageLoadOption.create().bitmapConfig(Bitmap.Config.ARGB_8888)
-                        , new ImageDisplayer() {
-                    @Override
-                    public void display(Bitmap bitmap, View view, LoadFrom loadFrom) {
-                        ((ImageView) view).setImageBitmap(bitmap);
-                        Log.i(TAG, "url->" + url + ":::loadFrom->" + loadFrom);
-                    }
-                });
+                startActivity(new Intent(MainActivity.this, RestfulAPIActivity.class));
             }
         });
 
-        findViewById(R.id.load_bitmap).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_local_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "http://i2.hjfile.cn/f96/68/57/27316857.jpg";
-                RestVolleyImageLoader.instance(MainActivity.this).loadImage(url, ImageLoadOption.create().bitmapConfig(Bitmap.Config.ARGB_8888)
-                        , new ImageLoaderCompat.ImageListener() {
-                    @Override
-                    public void onResponse(ImageLoaderCompat.ImageContainer response, boolean isImmediate) {
-                        showImage(response.getBitmap());
-                    }
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                });
+                startActivity(new Intent(MainActivity.this, LocalImageListActivity.class));
             }
         });
 
-        findViewById(R.id.sync_load_bitmap).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_net_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TaskScheduler.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        String url = "http://i2.hjfile.cn/f96/67/87/9686787.jpg";
-                        final Bitmap bitmap = RestVolleyImageLoader.instance(MainActivity.this).syncLoadImage(url);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showImage(bitmap);
-                            }
-                        });
-                    }
-                });
+                startActivity(new Intent(MainActivity.this, NetImageListActivity.class));
             }
         });
 
-        findViewById(R.id.concurrency_btn).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_download).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String url1 = "http://qa.study.hjapi.com/api/v1/tasks/4689/subtasks/148817/comments/summary";
-                final String url2 = "http://qa.study.hjapi.com/api/v1/tasks/4689/subtasks/148817/mark";
-                final String url3 = "http://qa.study.hjapi.com/api/v1/tasks/4689/subtasks/148833";
-                final String token = "0001fdeda2.7fb73c81b172a5fa7b72086f28dd0b85";
-                final String ua = "HJApp%201.0/android/Google%20Nexus%205X%20-%206.0.0%20-%20API%2023%20-%201080x1920/B6653C8DE0A466192FFDBFB/6.0/com.hujiang.normandy/2.7.0.392/hujiang/";
-                final String uuid = "B6653C8DE0A466192FFDBFB";
+                startActivity(new Intent(MainActivity.this, DownloadActivity.class));
+            }
+        });
 
-                final RestVolleyRequest request = new GetRequest(MainActivity.this);
-                request.setTag(TAG);
-                request.setShouldCache(false);
-                request.setTimeout(10000);
-                request.setRetryPolicy(new DefaultRetryPolicy(2000, 3, 1.0f));
+        findViewById(R.id.btn_sync_request).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SyncRequestActivity.class));
+            }
+        });
 
-                request.url(url1)
-                        .addHeader("pragma-token", token)
-                        .addHeader("userAgent", ua)
-                        .addHeader("pragma-uuid", uuid)
-                        .addParams("token", token).execute(new RestVolleyCallback<String>() {
-                    @Override
-                    public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                        Log.i(TAG, statusCode + ":1::::" + message);
-                    }
-
-                    @Override
-                    public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                        Log.i(TAG, statusCode + ":1::::" + message);
-                    }
-                });
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        request.url(url2)
-                                .addHeader("pragma-token", token)
-                                .addHeader("userAgent", ua)
-                                .addHeader("pragma-uuid", uuid)
-                                .addParams("token", token).execute(new RestVolleyCallback<String>() {
-                            @Override
-                            public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":2::::" + message);
-                            }
-
-                            @Override
-                            public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":2::::" + message);
-                            }
-                        });
-
-                        request.url(url3)
-                                .addHeader("pragma-token", token)
-                                .addHeader("userAgent", ua)
-                                .addHeader("pragma-uuid", uuid)
-                                .addParams("token", token).execute(new RestVolleyCallback<String>() {
-                            @Override
-                            public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":3::::" + message);
-                            }
-
-                            @Override
-                            public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":3::::" + message);
-                            }
-                        });
-
-                        request.url("http://www.baidu.com").execute(new RestVolleyCallback<String>() {
-                            @Override
-                            public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":4::::" + message);
-                            }
-
-                            @Override
-                            public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":4::::" + message);
-                            }
-                        });
-
-                        request.url("http://stackoverflow.com/").execute(new RestVolleyCallback<String>() {
-                            @Override
-                            public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":5::::" + message);
-                            }
-
-                            @Override
-                            public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":5::::" + message);
-                            }
-                        });
-                        request.url("http://www.cnbeta.com").execute(new RestVolleyCallback<String>() {
-                            @Override
-                            public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":6::::" + message);
-                            }
-
-                            @Override
-                            public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":6::::" + message);
-                            }
-                        });
-                        request.url("https://bintray.com/").execute(new RestVolleyCallback<String>() {
-                            @Override
-                            public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":7::::" + message);
-                            }
-
-                            @Override
-                            public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                if (getException() != null) {
-                                    Log.i(TAG, "exception:" + getException().toString());
-                                }
-                                Log.i(TAG, statusCode + ":7::::" + message);
-                            }
-                        });
-                        request.url("http://www.infoq.com/cn/").execute(new RestVolleyCallback<String>() {
-                            @Override
-                            public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":8::::" + message);
-                            }
-
-                            @Override
-                            public void onFail(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
-                                Log.i(TAG, statusCode + ":8::::" + message);
-                            }
-                        });
-                    }
-                }, 500);
+        findViewById(R.id.btn_https_request).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, HTTPSActivity.class));
             }
         });
 
         Log.i(TAG, "CPU_COUNT:" + Runtime.getRuntime().availableProcessors());
-    }
-
-    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int id = v.getId();
-            Context context = MainActivity.this;
-            if (id == R.id.image_list) {
-                startActivity(new Intent(MainActivity.this, ImageListActivity.class));
-            } else if (id == R.id.asset_img_btn) {
-                String path = "assets://assets_default.png";
-                RestVolleyImageLoader.instance(context).displayImage(path, showImage(null));
-            } else if (id == R.id.content_img_btn) {
-                String path = "content://media/external/images/media/27916";
-                RestVolleyImageLoader.instance(context).displayImage(path, showImage(null));
-            } else if (id == R.id.drawable_btn) {
-                String path = "drawable://" + R.drawable.drawable_default;
-                RestVolleyImageLoader.instance(context).displayImage(path, showImage(null));
-            } else if (id == R.id.raw_btn) {
-                String path = "drawable://" + R.raw.raw_default;
-                RestVolleyImageLoader.instance(context).displayImage(path, showImage(null));
-            } else if (id == R.id.download_btn) {
-               startActivity(new Intent(MainActivity.this, DownloadActivity.class));
-            }
-        }
-    };
-
-    public void showMessage(CharSequence content) {
-        new AlertDialog.Builder(this).setMessage(content).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).create().show();
-    }
-
-    public ImageView showImage(Bitmap bitmap) {
-        LayoutInflater layoutInflater = LayoutInflater.from(this);
-
-        View dialogView = layoutInflater.inflate(R.layout.dialog_image_layout, null);
-        ImageView imageView = (ImageView)dialogView.findViewById(R.id.dialog_image);
-        if (bitmap != null) {
-            imageView.setImageBitmap(bitmap);
-        }
-
-        new AlertDialog.Builder(this).setView(dialogView).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).create().show();
-
-        return imageView;
     }
 }

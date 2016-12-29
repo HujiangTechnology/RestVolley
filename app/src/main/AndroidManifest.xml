@@ -34,7 +34,15 @@
             </intent-filter>
         </activity>
         <activity android:name=".DownloadActivity"/>
-        <activity android:name=".ImageListActivity">
+        <activity android:name=".LocalImageListActivity">
+        </activity>
+        <activity android:name=".NetImageListActivity">
+        </activity>
+        <activity android:name=".RestfulAPIActivity">
+        </activity>
+        <activity android:name=".SyncRequestActivity">
+        </activity>
+        <activity android:name=".HTTPSActivity">
         </activity>
     </application>
 

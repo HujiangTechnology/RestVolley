@@ -16,56 +16,34 @@
         tools:showIn="@layout/activity_main"
         android:orientation="vertical">
         <Button
-            android:id="@+id/image_list"
+            android:id="@+id/btn_restful_api"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="图片列表显示"/>
+            android:text="RESTFUL API"/>
         <Button
-            android:id="@+id/asset_img_btn"
+            android:id="@+id/btn_download"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="asset图片显示"/>
+            android:text="DOWNLOAD"/>
         <Button
-            android:id="@+id/content_img_btn"
+            android:id="@+id/btn_net_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="content图片显示"
-            android:visibility="gone"/>
+            android:text="NET IMAGE"/>
         <Button
-            android:id="@+id/drawable_btn"
+            android:id="@+id/btn_local_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="drawable图片显示"/>
+            android:text="LOCAL IMAGE"/>
         <Button
-            android:id="@+id/raw_btn"
+            android:id="@+id/btn_sync_request"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="raw图片显示"/>
+            android:text="SYNC REQUEST"/>
         <Button
-            android:id="@+id/display_bitmap"
+            android:id="@+id/btn_https_request"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="display图片"/>
-        <Button
-            android:id="@+id/load_bitmap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="load图片"/>
-        <Button
-            android:id="@+id/sync_load_bitmap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="sync_Load图片"/>
-        <Button
-            android:id="@+id/download_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="下载"
-            android:visibility="visible"/>
-        <Button
-            android:id="@+id/concurrency_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="并发请求"/>
+            android:text="HTTPS REQUEST"/>
     </LinearLayout>
 </ScrollView>

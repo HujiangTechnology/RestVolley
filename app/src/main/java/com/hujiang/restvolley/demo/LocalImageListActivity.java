@@ -1,28 +1,25 @@
 package com.hujiang.restvolley.demo;
 
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import com.hujiang.restvolley.image.ImageDisplayer;
 import com.hujiang.restvolley.image.ImageLoadOption;
-import com.hujiang.restvolley.image.LoadFrom;
 import com.hujiang.restvolley.image.RestVolleyImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImageListActivity extends AppCompatActivity {
+public class LocalImageListActivity extends AppCompatActivity {
 
     private ListView mImageListView;
     private ImageListAdapter mImageListAdapter;
@@ -35,6 +32,12 @@ public class ImageListActivity extends AppCompatActivity {
 
         mImageListView = (ListView)findViewById(R.id.image_list_view);
 
+        //add built-in images
+        mImages.add("assets://assets_default.png");
+        mImages.add("content://media/external/images/media/27916");
+        mImages.add("drawable://" + R.drawable.drawable_default);
+        mImages.add("drawable://" + R.raw.raw_default);
+
         String[] projection = {"_id", "_data"};
         Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Cursor c = MediaStore.Images.Media.query(getContentResolver(), uri, projection, null, MediaStore.Images.Media.DATE_ADDED);
@@ -42,7 +45,7 @@ public class ImageListActivity extends AppCompatActivity {
             if (c.moveToFirst()) {
                 do {
                     String path = c.getString(c.getColumnIndexOrThrow("_data"));
-                    mImages.add(path);
+                    mImages.add("file://" + path);
                 } while (c.moveToNext());
             }
 
@@ -83,24 +86,27 @@ public class ImageListActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder;
             if (convertView == null) {
-                convertView = LayoutInflater.from(ImageListActivity.this).inflate(R.layout.image_list_item, null, false);
-                viewHolder = new ViewHolder((ImageView)convertView.findViewById(R.id.image_item));
+                convertView = LayoutInflater.from(LocalImageListActivity.this).inflate(R.layout.image_list_item, null, false);
+                viewHolder = new ViewHolder((ImageView)convertView.findViewById(R.id.image_item), (TextView)convertView.findViewById(R.id.image_title));
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            RestVolleyImageLoader.instance(ImageListActivity.this).displayImage("file://" + paths.get(position), viewHolder.image
-                    , ImageLoadOption.create().defaultImgResId(R.drawable.octobiwan_default));
+            RestVolleyImageLoader.instance(LocalImageListActivity.this).displayImage(paths.get(position), viewHolder.image
+                    , ImageLoadOption.create().defaultImgResId(R.drawable.restvolley_demo_app));
+            viewHolder.text.setText(mImages.get(position));
 
             return convertView;
         }
 
         class ViewHolder {
             ImageView image;
+            TextView text;
 
-            public ViewHolder(ImageView image) {
+            public ViewHolder(ImageView image, TextView text) {
                 this.image = image;
+                this.text = text;
             }
         }
     }

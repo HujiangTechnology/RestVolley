@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    android:id="@+id/activity_image_list"
+    android:id="@+id/activity_sync_request"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,9 +9,6 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.hujiang.restvolley.demo.LocalImageListActivity">
-    <ListView
-        android:id="@+id/image_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+    tools:context="com.hujiang.restvolley.demo.SyncRequestActivity">
+
 </RelativeLayout>

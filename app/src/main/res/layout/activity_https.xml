@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/activity_https"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context="com.hujiang.restvolley.demo.HTTPSActivity"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <Button
+            android:id="@+id/btn_office_ca"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CA签名证书验证"/>
+        <Button
+            android:id="@+id/btn_self_ca"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="自签名证书验证"/>
+        <Button
+            android:id="@+id/btn_no_ca"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="无证书验证"/>
+        <TextView
+            android:id="@+id/txt_request_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text=""/>
+    </LinearLayout>
+
+</ScrollView>
