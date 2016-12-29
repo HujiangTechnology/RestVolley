@@ -30,7 +30,6 @@ import java.io.InputStream;
 public class ImageProcessor {
 
     public static final int BYTE_IN_PIX = 4;
-    public static long MAX_BMP_SIZE = 0;
 
     /**
      * Scales one side of a rectangle to fit aspect ratio.
@@ -119,7 +118,7 @@ public class ImageProcessor {
         if (maxWidth == 0 && maxHeight == 0) {
             int sampleSize = 1;
             long desired_size = actualWidth * actualHeight * BYTE_IN_PIX;
-            while (desired_size > MAX_BMP_SIZE) {
+            while (desired_size > RestVolleyImageCache.MEM_CACHE_SIZE) {
                 desired_size = actualWidth * actualHeight * BYTE_IN_PIX / sampleSize / sampleSize;
                 sampleSize *= 2;
             }
@@ -243,7 +242,7 @@ public class ImageProcessor {
 
         int sampleSize = 1;
         long desired_size = actualWidth * actualHeight * ImageProcessor.BYTE_IN_PIX;
-        while (desired_size > ImageProcessor.MAX_BMP_SIZE) {
+        while (desired_size > RestVolleyImageCache.MEM_CACHE_SIZE) {
             desired_size = actualWidth * actualHeight * ImageProcessor.BYTE_IN_PIX / sampleSize / sampleSize;
             sampleSize *= 2;
         }

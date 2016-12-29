@@ -40,8 +40,11 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
     private static final int BYTES_IN_PIX = 4;
     private static final int PAGE_CACHE_COUNT = 3;
 
-    private static final long DEF_DISK_CACHE_SIZE = 64 * 1024 * 1024;
+    private static final long DEF_DISK_CACHE_SIZE = 128 * 1024 * 1024;
     private static final String DISK_CACHE_DIR = "restvolley_image";
+
+    public static long MEM_CACHE_SIZE = 0;
+    public static long DISK_CACHE_SIZE = 0;
 
     LruCache<String, Bitmap> mMemCache;
     DiskLruCache mDiskCache;
@@ -62,12 +65,12 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
      * @param diskCacheDir disk cache dir.
      */
     public RestVolleyImageCache(Context context, long maxMemCacheSize, long maxDiskCacheSize, String diskCacheDir) {
-        long memCacheSize = maxMemCacheSize > 0 ? maxMemCacheSize : getDefaultCacheSize(context);
-        long diskCacheSize = maxDiskCacheSize > 0 ? maxDiskCacheSize : DEF_DISK_CACHE_SIZE;
+        MEM_CACHE_SIZE = maxMemCacheSize > 0 ? maxMemCacheSize : getDefaultCacheSize(context);
+        DISK_CACHE_SIZE = maxDiskCacheSize > 0 ? maxDiskCacheSize : DEF_DISK_CACHE_SIZE;
         String cacheDirStr = TextUtils.isEmpty(diskCacheDir) ? DISK_CACHE_DIR : diskCacheDir;
 
         //create mem cache
-        mMemCache = new LruCache<String, Bitmap>((int) memCacheSize) {
+        mMemCache = new LruCache<String, Bitmap>((int) MEM_CACHE_SIZE) {
             @Override
             protected int sizeOf(String key, Bitmap value) {
                 return getBitmapSize(value);
@@ -82,7 +85,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
 
         //create disk cache
         try {
-            mDiskCache = DiskLruCache.open(cacheDir, 1, 1, diskCacheSize);
+            mDiskCache = DiskLruCache.open(cacheDir, 1, 1, DISK_CACHE_SIZE);
         } catch (IOException e) {
             e.printStackTrace();
         }

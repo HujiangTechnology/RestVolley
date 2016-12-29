@@ -40,7 +40,6 @@ public class RestVolleyImageLoader {
     private Context mContext;
 
     private RestVolleyImageLoader(Context context) {
-        ImageProcessor.MAX_BMP_SIZE = Runtime.getRuntime().freeMemory();
         mContext = context.getApplicationContext();
 
         mRequestEngine = RestVolley.newRequestEngine(context, IMAGE_REQUEST_ENGINE_TAG);
