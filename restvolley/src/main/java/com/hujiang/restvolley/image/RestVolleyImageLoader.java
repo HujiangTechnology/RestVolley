@@ -42,7 +42,7 @@ public class RestVolleyImageLoader {
     private RestVolleyImageLoader(Context context) {
         mContext = context.getApplicationContext();
 
-        mRequestEngine = RestVolley.newRequestEngine(context, IMAGE_REQUEST_ENGINE_TAG);
+        mRequestEngine = RestVolley.newRequestEngine(context, IMAGE_REQUEST_ENGINE_TAG, true);
 
         mRestVolleyImageCache = new RestVolleyImageCache(context);
         mImageLoader = new ImageLoaderCompat(mContext, mRequestEngine.requestQueue, mRestVolleyImageCache);

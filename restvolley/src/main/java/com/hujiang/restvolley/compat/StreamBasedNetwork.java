@@ -23,11 +23,11 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.ByteArrayPool;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.PoolingByteArrayOutputStream;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -36,6 +36,7 @@ import org.apache.http.impl.cookie.DateUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -52,33 +53,20 @@ import java.util.TreeMap;
  * @version 1.0.0
  * @since 2016-08-01
  */
-public class RestVolleyNetwork implements Network {
+public class StreamBasedNetwork implements Network {
     protected static final boolean DEBUG = VolleyLog.DEBUG;
 
-    private static int SLOW_REQUEST_THRESHOLD_MS = 3000;
+    public static int SLOW_REQUEST_THRESHOLD_MS = 3000;
 
-    private static int DEFAULT_POOL_SIZE = 4096;
+    public static int DEFAULT_POOL_SIZE = 10240;
 
     protected final HttpStack mHttpStack;
 
-    protected final ByteArrayPool mPool;
-
     /**
      * @param httpStack HTTP stack to be used
      */
-    public RestVolleyNetwork(HttpStack httpStack) {
-        // If a pool isn't passed in, then build a small default pool that will give us a lot of
-        // benefit and not use too much memory.
-        this(httpStack, new ByteArrayPool(DEFAULT_POOL_SIZE));
-    }
-
-    /**
-     * @param httpStack HTTP stack to be used
-     * @param pool a buffer pool that improves GC performance in copy operations
-     */
-    public RestVolleyNetwork(HttpStack httpStack, ByteArrayPool pool) {
+    public StreamBasedNetwork(HttpStack httpStack) {
         mHttpStack = httpStack;
-        mPool = pool;
     }
 
     @Override
@@ -86,7 +74,8 @@ public class RestVolleyNetwork implements Network {
         long requestStart = SystemClock.elapsedRealtime();
         while (true) {
             HttpResponse httpResponse = null;
-            byte[] responseContents = null;
+//            byte[] responseContents = null;
+            InputStream responseStream = null;
             Map<String, String> responseHeaders = Collections.emptyMap();
             try {
                 // Gather headers.
@@ -97,21 +86,6 @@ public class RestVolleyNetwork implements Network {
                 int statusCode = statusLine.getStatusCode();
 
                 responseHeaders = convertHeaders(httpResponse.getAllHeaders());
-                // Handle cache validation. process cache event
-                if (statusCode == HttpStatus.SC_NOT_MODIFIED) {
-                    Cache.Entry entry = request.getCacheEntry();
-                    if (entry == null) {
-                        //no cache network response
-                        return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, null, responseHeaders, true, SystemClock.elapsedRealtime() - requestStart);
-                    }
-
-                    // A HTTP 304 response does not have all header fields. We
-                    // have to use the header fields from the cache entry plus
-                    // the new ones from the response.
-                    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
-                    entry.responseHeaders.putAll(responseHeaders);
-                    return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, entry.data, entry.responseHeaders, true, SystemClock.elapsedRealtime() - requestStart);
-                }
 
                 // Handle moved resources. process redirect event.
                 if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
@@ -121,21 +95,17 @@ public class RestVolleyNetwork implements Network {
 
                 // Some responses such as 204s do not have content.  We must check.
                 if (httpResponse.getEntity() != null) {
-                    responseContents = entityToBytes(httpResponse.getEntity());
-                } else {
-                    // Add 0 byte response as a way of honestly representing a
-                    // no-content request.
-                    responseContents = new byte[0];
+                    responseStream = httpResponse.getEntity().getContent();
                 }
 
                 // if the request is slow, log it.
-                long requestLifetime = SystemClock.elapsedRealtime() - requestStart;
-                logSlowRequests(requestLifetime, request, responseContents, statusLine);
+//                long requestLifetime = SystemClock.elapsedRealtime() - requestStart;
+//                logSlowRequests(requestLifetime, request, responseContents, statusLine);
 
                 if (statusCode < 200 || statusCode > 299) {
-                    throw new IOException();
+                    throw new NetworkError();
                 }
-                return new NetworkResponse(statusCode, responseContents, responseHeaders, false, SystemClock.elapsedRealtime() - requestStart);
+                return new StreamBasedNetworkResponse(statusCode, responseStream, httpResponse.getEntity().getContentLength(), responseHeaders, false, SystemClock.elapsedRealtime() - requestStart);
             } catch (SocketTimeoutException e) {
                 attemptRetryOnException("socket", request, new TimeoutError());
             } catch (ConnectTimeoutException e) {
@@ -155,8 +125,8 @@ public class RestVolleyNetwork implements Network {
                 } else {
                     VolleyLog.e("Unexpected response code %d for %s", statusCode, request.getUrl());
                 }
-                if (responseContents != null) {
-                    networkResponse = new NetworkResponse(statusCode, responseContents, responseHeaders, false, SystemClock.elapsedRealtime() - requestStart);
+                if (responseStream != null) {
+                    networkResponse = new StreamBasedNetworkResponse(statusCode, responseStream, httpResponse.getEntity().getContentLength(), responseHeaders, false, SystemClock.elapsedRealtime() - requestStart);
                     if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_FORBIDDEN) {
                         attemptRetryOnException("auth", request, new AuthFailureError(networkResponse));
                     } else if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
@@ -250,31 +220,30 @@ public class RestVolleyNetwork implements Network {
     }
 
     /** Reads the contents of HttpEntity into a byte[]. */
-    private byte[] entityToBytes(HttpEntity entity) throws IOException, ServerError {
-        PoolingByteArrayOutputStream bytes =
-                new PoolingByteArrayOutputStream(mPool, (int) entity.getContentLength());
+    public static byte[] entityToBytes(InputStream inputStream, long contentLength, int bufferSize) throws IOException, ServerError {
+        ByteArrayPool bytePool = new ByteArrayPool(bufferSize);
+        PoolingByteArrayOutputStream bytes = new PoolingByteArrayOutputStream(bytePool, (int)contentLength);
         byte[] buffer = null;
         try {
-            InputStream in = entity.getContent();
-            if (in == null) {
+            if (inputStream == null) {
                 throw new ServerError();
             }
-            buffer = mPool.getBuf(1024);
+            buffer = bytePool.getBuf(1024);
             int count;
-            while ((count = in.read(buffer)) != -1) {
+            while ((count = inputStream.read(buffer)) != -1) {
                 bytes.write(buffer, 0, count);
             }
             return bytes.toByteArray();
         } finally {
             try {
                 // Close the InputStream and release the resources by "consuming the content".
-                entity.consumeContent();
+                inputStream.close();
             } catch (IOException e) {
                 // This can happen if there was an exception above that left the entity in
                 // an invalid state.
                 VolleyLog.v("Error occured when calling consumingContent");
             }
-            mPool.returnBuf(buffer);
+            bytePool.returnBuf(buffer);
             bytes.close();
         }
     }

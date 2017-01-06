@@ -118,7 +118,7 @@ public class ImageProcessor {
         if (maxWidth == 0 && maxHeight == 0) {
             int sampleSize = 1;
             long desired_size = actualWidth * actualHeight * BYTE_IN_PIX;
-            while (desired_size > RestVolleyImageCache.MEM_CACHE_SIZE) {
+            while (desired_size > RestVolleyImageCache.MAX_BITMAP_CACHE_SIZE) {
                 desired_size = actualWidth * actualHeight * BYTE_IN_PIX / sampleSize / sampleSize;
                 sampleSize *= 2;
             }
@@ -242,7 +242,7 @@ public class ImageProcessor {
 
         int sampleSize = 1;
         long desired_size = actualWidth * actualHeight * ImageProcessor.BYTE_IN_PIX;
-        while (desired_size > RestVolleyImageCache.MEM_CACHE_SIZE) {
+        while (desired_size > RestVolleyImageCache.MAX_BITMAP_CACHE_SIZE) {
             desired_size = actualWidth * actualHeight * ImageProcessor.BYTE_IN_PIX / sampleSize / sampleSize;
             sampleSize *= 2;
         }

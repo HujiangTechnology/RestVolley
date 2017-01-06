@@ -50,13 +50,8 @@ public class GsonUtils {
      * @param <T> Object Class Type
      * @return Object
      */
-    public static <T> T fromJsonString(String jsonString, Class<T> clazz) {
-        try {
-            return getGson().fromJson(jsonString, clazz);
-        } catch (Throwable var3) {
-            var3.printStackTrace();
-            return null;
-        }
+    public static <T> T fromJsonString(String jsonString, Class<T> clazz) throws JsonSyntaxException {
+        return getGson().fromJson(jsonString, clazz);
     }
 
     /**
@@ -66,13 +61,8 @@ public class GsonUtils {
      * @param <T> Type
      * @return Object of T
      */
-    public static <T> T fromJsonString(String json, Type typeOfT) {
-        try {
-            return getGson().fromJson(json, typeOfT);
-        } catch (JsonSyntaxException var3) {
-            var3.printStackTrace();
-            return null;
-        }
+    public static <T> T fromJsonString(String json, Type typeOfT) throws JsonSyntaxException {
+        return getGson().fromJson(json, typeOfT);
     }
 
     /**
@@ -80,12 +70,7 @@ public class GsonUtils {
      * @param object Object
      * @return json string.
      */
-    public static String toJsonString(Object object) {
-        try {
-            return getGson().toJson(object);
-        } catch (Throwable var2) {
-            var2.printStackTrace();
-            return "";
-        }
+    public static String toJsonString(Object object) throws Exception  {
+        return getGson().toJson(object);
     }
 }

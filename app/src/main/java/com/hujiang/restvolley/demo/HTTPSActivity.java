@@ -56,7 +56,7 @@ public class HTTPSActivity extends AppCompatActivity {
         findViewById(R.id.btn_no_ca).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new GetRequest(HTTPSActivity.this).url("https://api.mobile.hujiang.com/mobileapp/appUpmobile.ashx").execute(new RestVolleyCallback<String>() {
+                new GetRequest(HTTPSActivity.this).url("http://api.mobile.hujiang.com/mobileapp/appUpmobile.ashx").execute(new RestVolleyCallback<String>() {
                     @Override
                     public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
                         mRequestContentView.setText(statusCode + "===>" + data + "===>" + message);

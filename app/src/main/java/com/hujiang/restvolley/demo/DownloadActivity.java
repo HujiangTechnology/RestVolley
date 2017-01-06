@@ -32,7 +32,7 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
 
     private static String DOWNLOAD_DIR;
     private static final String[] DOWNLOAD_URLS = {
-            "http://m.hujiang.com/ar_69/?source=tingliku"
+            "http://c1.g.hjfile.cn/yuliao/word/-104/9dda7c20c75e5e0bac040c1dacad3a3b.mp3"
             , "http://app.m.hjfile.cn/android/hjwordgames_hjpc.apk"
             , "http://app.m.hjfile.cn/android/tingliku_hjpc.apk"
             , "http://app.m.hjfile.cn/android/hjdict_hjpc.apk"
@@ -199,7 +199,11 @@ public class DownloadActivity extends Activity implements View.OnClickListener, 
             holder.mProTxt.setText(String.format("%s/%s", Formatter.formatFileSize(DownloadActivity.this, info.downloadBytes)
                     , Formatter.formatFileSize(DownloadActivity.this, info.totalSize)));
             holder.mProgress.setMax(100);
-            holder.mProgress.setProgress(info.downloadBytes == 0 ? 0 : (int) (100 * info.downloadBytes / info.totalSize));
+            if (info.totalSize <= 0) {
+                holder.mProgress.setProgress(100);
+            } else {
+                holder.mProgress.setProgress(info.downloadBytes == 0 ? 0 : (int) (100 * info.downloadBytes / info.totalSize));
+            }
 
             String statusHint;
             switch (info.status) {

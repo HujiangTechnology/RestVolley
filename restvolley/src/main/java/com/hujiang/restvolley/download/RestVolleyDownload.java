@@ -11,9 +11,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 
+import com.hujiang.restvolley.CertificateUtils;
 import com.hujiang.restvolley.RequestEngine;
 import com.hujiang.restvolley.RestVolley;
 import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.CertificatePinner;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -27,7 +29,14 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
+
 
 /**
  * download tool depends on Okhttp.
@@ -35,6 +44,7 @@ import java.util.concurrent.TimeUnit;
  * @author simon
  * @version 1.0.0
  * @since 2016-01-14
+ * TODO Callback 替换为自己的Callback
  */
 public class RestVolleyDownload {
 
@@ -50,6 +60,14 @@ public class RestVolleyDownload {
     private OkHttpClient mOkHttpClient;
     private boolean mIsAppend;
     private boolean mIsCanceled;
+
+    private SSLSocketFactory mSSLSocketFactory = CertificateUtils.getDefaultSSLSocketFactory();
+    private HostnameVerifier mHostnameVerifier = CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
+    private Map<String, String> mPinners = new LinkedHashMap<>();
+    private Proxy mProxy = Proxy.NO_PROXY;
+    private long mConnectTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
+    private long mReadTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
+    private long mWriteTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
 
     /**
      * constructor with default {@link RequestEngine} that created by {@link RestVolley#getDefaultRequestEngine(Context)}.
@@ -67,6 +85,24 @@ public class RestVolleyDownload {
         mRequestBuilder = new Request.Builder();
         mRequestBuilder.get();
         mOkHttpClient = requestEngine.okHttpClient;
+    }
+
+    public RestVolleyDownload setSSLSocketFactory(SSLSocketFactory sslSocketFactory) {
+        mSSLSocketFactory = sslSocketFactory;
+
+        return this;
+    }
+
+    public RestVolleyDownload setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+        mHostnameVerifier = hostnameVerifier;
+
+        return this;
+    }
+
+    public void addCertificatePinner(String hostname, String pinner) {
+        if (!TextUtils.isEmpty(hostname) && !TextUtils.isEmpty(pinner)) {
+            mPinners.put(hostname, pinner);
+        }
     }
 
     /**
@@ -120,7 +156,7 @@ public class RestVolleyDownload {
      * @return {@link RestVolleyDownload}
      */
     public RestVolleyDownload setProxy(Proxy proxy) {
-        mOkHttpClient.setProxy(proxy);
+        mProxy = proxy;
         return this;
     }
 
@@ -133,8 +169,7 @@ public class RestVolleyDownload {
     public RestVolleyDownload setProxy(String host, int port) {
         if (!TextUtils.isEmpty(host)) {
             SocketAddress address = new InetSocketAddress(host, port);
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, address);
-            mOkHttpClient.setProxy(proxy);
+            mProxy = new Proxy(Proxy.Type.HTTP, address);
         }
 
         return this;
@@ -146,8 +181,7 @@ public class RestVolleyDownload {
      * @return {@link RestVolleyDownload}
      */
     public RestVolleyDownload setConnectTimeout(long timeout) {
-        mOkHttpClient.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
-
+        mConnectTimeout = timeout;
         return this;
     }
 
@@ -157,8 +191,7 @@ public class RestVolleyDownload {
      * @return {@link RestVolleyDownload}
      */
     public RestVolleyDownload setReadTimeout(long timeout) {
-        mOkHttpClient.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
-
+        mReadTimeout = timeout;
         return this;
     }
 
@@ -168,7 +201,7 @@ public class RestVolleyDownload {
      * @return {@link RestVolleyDownload}
      */
     public RestVolleyDownload setWriteTimeout(long timeout) {
-        mOkHttpClient.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
+        mWriteTimeout = timeout;
         return this;
     }
 
@@ -237,12 +270,32 @@ public class RestVolleyDownload {
         return mOkHttpClient;
     }
 
+    private void bindOkHttpClient() {
+        mOkHttpClient.setSslSocketFactory(mSSLSocketFactory);
+        mOkHttpClient.setHostnameVerifier(mHostnameVerifier);
+        mOkHttpClient.setProxy(mProxy);
+        mOkHttpClient.setConnectTimeout(mConnectTimeout, TimeUnit.MILLISECONDS);
+        mOkHttpClient.setReadTimeout(mReadTimeout, TimeUnit.MILLISECONDS);
+        mOkHttpClient.setWriteTimeout(mWriteTimeout, TimeUnit.MILLISECONDS);
+
+        if (!mPinners.isEmpty()) {
+            Set<Map.Entry<String, String>> sets = mPinners.entrySet();
+            CertificatePinner.Builder cBuilder = new CertificatePinner.Builder();
+            for (Map.Entry<String, String> entry : sets) {
+                cBuilder.add(entry.getKey(), entry.getValue());
+            }
+
+            mOkHttpClient.setCertificatePinner(cBuilder.build());
+        }
+    }
+
     /**
      * download.
      * @param localPath local path
      * @param callback {@link Callback}
      */
     public void download(final String localPath, Callback callback) {
+        bindOkHttpClient();
         mOkHttpClient.newCall(mRequestBuilder.get().build()).enqueue(callback);
     }
 
@@ -256,7 +309,7 @@ public class RestVolleyDownload {
         final Request request = mRequestBuilder.build();
 
         notifyDownloadStart(request.urlString(), listener);
-
+        bindOkHttpClient();
         mOkHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
@@ -301,6 +354,7 @@ public class RestVolleyDownload {
     public DownloadResponse syncDownload(String localPath) {
         File localFile = newFile(localPath + SUFIX_TMP);
         DownloadResponse downloadResponse = new DownloadResponse();
+        bindOkHttpClient();
         try {
             Response result = mOkHttpClient.newCall(mRequestBuilder.build()).execute();
             //write stream to file
@@ -351,11 +405,13 @@ public class RestVolleyDownload {
             , final OnDownloadListener listener) throws Exception {
         ResponseBody body = response.body();
         InputStream inputStream = body.byteStream();
+
+        boolean isErrorOccurs = false;
         long totalBytes = 0;
         try {
             totalBytes = Long.parseLong(response.header(RestVolley.HEADER_CONTENT_LENGTH));
         } catch (NumberFormatException e) {
-            throw e;
+            e.printStackTrace();
         }
 
         if (inputStream != null) {
@@ -381,9 +437,16 @@ public class RestVolleyDownload {
                             , response.headers(), listener);
                 }
             } catch(Exception e) {
+                isErrorOccurs = true;
                 throw e;
             } finally {
-                if (count == totalBytes) {
+                if (!mIsCanceled && !isErrorOccurs) {
+                    if (totalBytes == 0) {
+                        totalBytes = count;
+                        notifyDownloadProgress(response.request().urlString(), count, totalBytes, localFile, response.code()
+                                , response.headers(), listener);
+                    }
+
                     String tmpFilePath = localFile.getAbsolutePath();
                     localFile.renameTo(new File(tmpFilePath.substring(0, tmpFilePath.indexOf(SUFIX_TMP))));
                 }
@@ -395,7 +458,7 @@ public class RestVolleyDownload {
                 }
             }
 
-            return count == totalBytes;
+            return !mIsCanceled && !isErrorOccurs;
         }
         return false;
     }

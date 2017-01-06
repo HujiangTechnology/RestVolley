@@ -16,23 +16,36 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
+import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.RequestFuture;
+import com.google.gson.JsonSyntaxException;
+import com.hujiang.restvolley.CertificateUtils;
 import com.hujiang.restvolley.GsonUtils;
 import com.hujiang.restvolley.RequestEngine;
 import com.hujiang.restvolley.RestVolley;
+import com.hujiang.restvolley.compat.StreamBasedNetwork;
+import com.hujiang.restvolley.compat.StreamBasedNetworkResponse;
 import com.hujiang.restvolley.webapi.RestVolleyCallback;
 import com.hujiang.restvolley.webapi.RestVolleyModel;
 import com.hujiang.restvolley.webapi.RestVolleyResponse;
+import com.squareup.okhttp.CertificatePinner;
+import com.squareup.okhttp.OkHttpClient;
 
 import org.apache.http.protocol.HTTP;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Proxy;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * http request core.
@@ -111,6 +124,14 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
      */
     protected final Map<String, String> mUrlParams = new HashMap<String, String>();
 
+    protected SSLSocketFactory mSSLSocketFactory = CertificateUtils.getDefaultSSLSocketFactory();
+    protected HostnameVerifier mHostnameVerifier = CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
+    private Map<String, String> mPinners = new LinkedHashMap<>();
+    protected Proxy mProxy = Proxy.NO_PROXY;
+    protected long mConnectTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
+    protected long mReadTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
+    protected long mWriteTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
+
     /**
      * constructor.
      * @param context Context
@@ -143,6 +164,25 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
         return mRequestEngine;
     }
 
+    public OkHttpClient getOkHttpClient() {
+        return mRequestEngine.okHttpClient;
+    }
+
+    public R setSSLSocketFactory(SSLSocketFactory sslSocketFactory) {
+        mSSLSocketFactory = sslSocketFactory;
+        return (R)this;
+    }
+
+    public R setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+        mHostnameVerifier = hostnameVerifier;
+        return (R)this;
+    }
+
+    public void addCertificatePinner(String hostname, String pinner) {
+        if (!TextUtils.isEmpty(hostname) && !TextUtils.isEmpty(pinner)) {
+            mPinners.put(hostname, pinner);
+        }
+    }
     /**
      * build request body as you need.
      * @return byte[]
@@ -159,6 +199,25 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
         return contentTypeBuilder.toString();
     }
 
+    private void bindOkHttpClient() {
+        mRequestEngine.okHttpClient.setSslSocketFactory(mSSLSocketFactory);
+        mRequestEngine.okHttpClient.setHostnameVerifier(mHostnameVerifier);
+        mRequestEngine.okHttpClient.setProxy(mProxy);
+        mRequestEngine.okHttpClient.setConnectTimeout(mConnectTimeout, TimeUnit.MILLISECONDS);
+        mRequestEngine.okHttpClient.setReadTimeout(mReadTimeout, TimeUnit.MILLISECONDS);
+        mRequestEngine.okHttpClient.setWriteTimeout(mWriteTimeout, TimeUnit.MILLISECONDS);
+
+        if (!mPinners.isEmpty()) {
+            Set<Map.Entry<String, String>> sets = mPinners.entrySet();
+            CertificatePinner.Builder cBuilder = new CertificatePinner.Builder();
+            for (Map.Entry<String, String> entry : sets) {
+                cBuilder.add(entry.getKey(), entry.getValue());
+            }
+
+            mRequestEngine.okHttpClient.setCertificatePinner(cBuilder.build());
+        }
+    }
+
     /**
      * execute request asynchronous.
      * @param clazz request class type.
@@ -173,18 +232,24 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
             @Override
             public void onErrorResponse(VolleyError error) {
                 NetworkResponse response = error.networkResponse;
-                String s = response == null ? error.getMessage() : convertNetworkResponseData2String(response, mCharset);
+                String content = "";
+                Exception exception = error != null ? error : new Exception();
+                try {
+                    content = convertNetworkResponseData2String(response, mCharset);
+                } catch (IOException e) {
+                    exception = e;
+                } catch (ServerError serverError) {
+                    exception = serverError;
+                }
 
                 int httpStatus = response == null ? -1 : response.statusCode;
-                DATA d = createDefaultResponseData(clazz, s);
+                DATA d = createDefaultResponseData(clazz, content);
                 Map<String, String> headers = response == null ? null : response.headers;
                 boolean notModified = response == null ? false : response.notModified;
                 long networkTime = response == null ? 0 : response.networkTimeMs;
-                String message = s;
-
 
                 callback.setException(error);
-                callback.onFail(httpStatus, d, headers, notModified, networkTime, message);
+                callback.onFail(httpStatus, d, headers, notModified, networkTime, exception.toString());
 
                 //finish callback
                 callback.onFinished(RestVolleyRequest.this);
@@ -199,8 +264,13 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                     if (((RestVolleyModel) responseData).getCode() == ((RestVolleyModel) responseData).successCode()) {
                         callback.onSuccess(response.statusCode, responseData, response.headers, response.notModified, response.networkTimeMs, response.message);
                     } else {
+                        callback.setException(response.exception);
                         callback.onFail(response.statusCode, responseData, response.headers, response.notModified, response.networkTimeMs, response.message);
                     }
+                } else if (responseData == null) {
+                    responseData = createDefaultResponseData(clazz, response.message);
+                    callback.setException(response.exception);
+                    callback.onFail(response.statusCode, responseData, response.headers, response.notModified, response.networkTimeMs, response.message);
                 } else {
                     callback.onSuccess(response.statusCode, responseData, response.headers, response.notModified, response.networkTimeMs, response.message);
                 }
@@ -208,6 +278,8 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                 callback.onFinished(RestVolleyRequest.this);
             }
         };
+
+        bindOkHttpClient();
         mVolleyRequest = new VolleyRequest(mMethod, onBuildUrl(), clazz, responseListener, responseListener);
         mVolleyRequest.setTag(mTag)
                 .setRetryPolicy(mRetryPolicy)
@@ -239,6 +311,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
      * @return {@link RestVolleyResponse}
      */
     public <DATA> RestVolleyResponse<DATA> syncExecute(Class<DATA> clazz) {
+        bindOkHttpClient();
         RequestFuture<RestVolleyResponse<DATA>> future = RequestFuture.newFuture();
         mVolleyRequest = new VolleyRequest(mMethod, onBuildUrl(), clazz, future, future);
         mVolleyRequest.setTag(mTag)
@@ -267,7 +340,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                 response.headers = networkResponse != null ? networkResponse.headers : response.headers;
                 response.networkTimeMs = networkResponse != null ? networkResponse.networkTimeMs : response.networkTimeMs;
                 response.notModified = networkResponse != null ? networkResponse.notModified : response.notModified;
-                response.data = (DATA)mVolleyRequest.parseNetworkResponse2RestVolleyResponse(networkResponse).data;
+                response.data = (DATA)mVolleyRequest.parseNetworkResponse2RVResponse(networkResponse).data;
             }
         }
 
@@ -349,7 +422,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
      */
     public R setConnectTimeout(long timeMillis) {
         if (timeMillis > 0) {
-            mRequestEngine.okHttpClient.setConnectTimeout(timeMillis, TimeUnit.MILLISECONDS);
+            mConnectTimeout = timeMillis;
         }
 
         return (R)this;
@@ -362,7 +435,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
      */
     public R setReadTimeout(long timeMillis) {
         if (timeMillis > 0) {
-            mRequestEngine.okHttpClient.setReadTimeout(timeMillis, TimeUnit.MILLISECONDS);
+            mReadTimeout = timeMillis;
         }
 
         return (R)this;
@@ -375,7 +448,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
      */
     public R setWriteTimeout(long timeMillis) {
         if (timeMillis > 0) {
-            mRequestEngine.okHttpClient.setWriteTimeout(timeMillis, TimeUnit.MILLISECONDS);
+            mWriteTimeout = timeMillis;
         }
 
         return (R)this;
@@ -388,9 +461,9 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
      */
     public R setTimeout(long timeMillis) {
         if (timeMillis > 0) {
-            mRequestEngine.okHttpClient.setConnectTimeout(timeMillis, TimeUnit.MILLISECONDS);
-            mRequestEngine.okHttpClient.setReadTimeout(timeMillis, TimeUnit.MILLISECONDS);
-            mRequestEngine.okHttpClient.setWriteTimeout(timeMillis, TimeUnit.MILLISECONDS);
+            setConnectTimeout(timeMillis);
+            setReadTimeout(timeMillis);
+            setWriteTimeout(timeMillis);
         }
         return (R)this;
     }
@@ -764,18 +837,34 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
         }
     }
 
-    private String convertNetworkResponseData2String(NetworkResponse response, String encoding) {
-        if (response == null || response.data == null) {
-            return "";
-        }
-        String str;
-        try {
-            str = new String(response.data, HttpHeaderParser.parseCharset(response.headers, encoding));
-        } catch (Exception e) {
-            str = new String(response.data);
+    private String convertNetworkResponseData2String(NetworkResponse response, String encoding) throws IOException, ServerError {
+        String content = new String();
+
+        if (response == null) {
+            return content;
         }
 
-        return str;
+        byte[] datas;
+        if (response instanceof StreamBasedNetworkResponse) {
+            InputStream inputStream = ((StreamBasedNetworkResponse) response).inputStream;
+            if (inputStream != null) {
+                datas = StreamBasedNetwork.entityToBytes(inputStream, ((StreamBasedNetworkResponse) response).contentLength, StreamBasedNetwork.DEFAULT_POOL_SIZE);
+            } else {
+                datas = response.data;
+            }
+        } else {
+            datas = response.data;
+        }
+
+        if (datas != null) {
+            try {
+                content = new String(datas, HttpHeaderParser.parseCharset(response.headers, encoding));
+            } catch (Exception e) {
+                content = new String(datas);
+            }
+        }
+
+        return content;
     }
 
     private class VolleyRequest<T> extends Request<RestVolleyResponse<T>> {
@@ -789,25 +878,63 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
             mClassT = classT;
         }
 
-        protected RestVolleyResponse<T> parseNetworkResponse2RestVolleyResponse(NetworkResponse response) {
+        protected RestVolleyResponse<T> parseNetworkResponse2RVResponse(NetworkResponse response) {
             RestVolleyResponse<T> result;
             if (mClassT == String.class) {
-                //
-                String str = convertNetworkResponseData2String(response, getParamsEncoding());
-                result = new RestVolleyResponse<T>(response.statusCode, (T)str, response.headers, response.notModified, response.networkTimeMs, "");
+                //return data as string
+                String content = "";
+                Exception exception = new Exception();
+                try {
+                    content = convertNetworkResponseData2String(response, getParamsEncoding());
+                } catch (IOException e) {
+                    exception = e;
+                } catch (ServerError serverError) {
+                    exception = serverError;
+                }
+                result = new RestVolleyResponse<T>(response.statusCode, (T)content, response.headers, response.notModified, response.networkTimeMs, exception.toString(), exception);
             } else if (mClassT == byte[].class) {
-                //
-                result = new RestVolleyResponse<T>(response.statusCode, (T)response.data, response.headers, response.notModified, response.networkTimeMs, "");
+                //return data as bytes
+                byte[] datas = new byte[0];
+                Exception exception = new Exception();
+                if (response instanceof StreamBasedNetworkResponse) {
+                    InputStream s = ((StreamBasedNetworkResponse) response).inputStream;
+                    if (s != null) {
+                        try {
+                            datas = StreamBasedNetwork.entityToBytes(s, ((StreamBasedNetworkResponse) response).contentLength, StreamBasedNetwork.DEFAULT_POOL_SIZE);
+                        } catch (IOException e) {
+                            exception = e;
+                        } catch (ServerError serverError) {
+                            exception = serverError;
+                        }
+                    } else {
+                        datas = response.data;
+                    }
+                } else {
+                    datas = response.data;
+                }
+                result = new RestVolleyResponse<T>(response.statusCode, (T)datas, response.headers, response.notModified, response.networkTimeMs, exception.toString(), exception);
             } else {
-                //
-                String s = convertNetworkResponseData2String(response, getParamsEncoding());
-                T data = GsonUtils.fromJsonString(s, mClassT);
-                if (data == null) {
-                    data = createDefaultResponseData(mClassT, s);
+                //return data as specified type
+                String content = "";
+                Exception exception = new Exception();
+                try {
+                    content = convertNetworkResponseData2String(response, getParamsEncoding());
+                } catch (IOException e) {
+                    exception = e;
+                } catch (ServerError serverError) {
+                    exception = serverError;
+                }
+                T data = null;
+
+                if (!TextUtils.isEmpty(content)) {
+                    try {
+                        data = GsonUtils.fromJsonString(content, mClassT);
+                    } catch (JsonSyntaxException e) {
+                        exception = e;
+                    }
                 }
 
-                result = new RestVolleyResponse<T>(response.statusCode, data, response.headers, response.notModified, response.networkTimeMs
-                        , data == null ? s : "");
+                result = new RestVolleyResponse<T>(response.statusCode, data, response.headers, response.notModified, response.networkTimeMs, exception.toString(), exception);
             }
 
             return result;
@@ -815,7 +942,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
 
         @Override
         protected Response<RestVolleyResponse<T>> parseNetworkResponse(NetworkResponse response) {
-            return Response.success(parseNetworkResponse2RestVolleyResponse(response), HttpHeaderParser.parseCacheHeaders(response));
+            return Response.success(parseNetworkResponse2RVResponse(response), HttpHeaderParser.parseCacheHeaders(response));
         }
 
         @Override

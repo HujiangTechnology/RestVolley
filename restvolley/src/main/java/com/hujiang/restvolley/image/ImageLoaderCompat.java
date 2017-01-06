@@ -352,12 +352,12 @@ public class ImageLoaderCompat {
             if (bitmap == null) {
                 responseErrorOnUiThread(imageContainer, new VolleyError("bitmap is null"), imageListener);
             } else {
+                imageContainer = new ImageContainer(bitmap, requestUri, cacheKey, LoadFrom.DISC_CACHE, imageListener);
+                responseOnUiThread(imageContainer, true, imageListener);
+
                 if (isCacheEnable) {
                     mCache.putBitmap(cacheKey, bitmap);
                 }
-
-                imageContainer = new ImageContainer(bitmap, requestUri, cacheKey, LoadFrom.DISC_CACHE, imageListener);
-                responseOnUiThread(imageContainer, true, imageListener);
             }
         } else {
             //load bitmap from network
@@ -471,7 +471,7 @@ public class ImageLoaderCompat {
         } else {
             //load bitmap from network
             RequestFuture<Bitmap> future = RequestFuture.newFuture();
-            Request<Bitmap> bitmapRequest = new ImageRequest(requestUri, future, maxWidth, maxHeight, scaleType, Bitmap.Config.RGB_565, future);
+            Request<Bitmap> bitmapRequest = new RVImageRequest(mContext, requestUri, future, maxWidth, maxHeight, scaleType, Bitmap.Config.RGB_565, future);
             future.setRequest(bitmapRequest);
             mRequestQueue.add(bitmapRequest);
 
@@ -492,7 +492,7 @@ public class ImageLoaderCompat {
     }
 
     protected Request<Bitmap> makeImageRequest(String requestUri, final ImageLoadOption imageLoadOption, final String cacheKey) {
-        return new ImageRequest(requestUri, new Response.Listener<Bitmap>() {
+        return new RVImageRequest(mContext, requestUri, new Response.Listener<Bitmap>() {
             @Override
             public void onResponse(Bitmap response) {
                 onGetImageSuccess(cacheKey, response, isCacheEnable(imageLoadOption));
@@ -564,11 +564,6 @@ public class ImageLoaderCompat {
      * @param response The bitmap that was returned from the network.
      */
     protected void onGetImageSuccess(final String cacheKey, final Bitmap response, boolean isCacheEnable) {
-        if (isCacheEnable) {
-            // cache the image that was fetched.
-            mCache.putBitmap(cacheKey, response);
-        }
-
         // remove the request from the list of in-flight requests.
         BatchedImageRequest request = mInFlightRequests.remove(cacheKey);
 
@@ -578,6 +573,11 @@ public class ImageLoaderCompat {
 
             // Send the batched response
             batchResponse(cacheKey, request);
+        }
+
+        if (isCacheEnable) {
+            // cache the image that was fetched.
+            mCache.putBitmap(cacheKey, response);
         }
     }
 
@@ -756,7 +756,9 @@ public class ImageLoaderCompat {
      * @param request The BatchedImageRequest to be delivered.
      */
     private void batchResponse(String cacheKey, BatchedImageRequest request) {
-        mBatchedResponses.put(cacheKey, request);
+        if (request != null) {
+            mBatchedResponses.put(cacheKey, request);
+        }
         // If we don't already have a batch delivery runnable in flight, make a new one.
         // Note that this will be used to deliver responses to all callers in mBatchedResponses.
         if (mRunnable == null) {

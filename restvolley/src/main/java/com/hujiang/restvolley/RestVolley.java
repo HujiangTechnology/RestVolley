@@ -18,12 +18,13 @@ import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.RestResponseDelivery;
+import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpClientStack;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
-import com.hujiang.restvolley.compat.RestVolleyNetwork;
+import com.hujiang.restvolley.compat.StreamBasedNetwork;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
@@ -118,7 +119,7 @@ public class RestVolley extends Volley {
      * @param engineTag http engine Tag related to the http engine.
      * @return HttpEngine.
      */
-    public static RequestEngine newRequestEngine(Context context, String engineTag) {
+    public static RequestEngine newRequestEngine(Context context, String engineTag, boolean isStreamBased) {
         RequestEngine requestEngine = sRequestEngineMap.get(engineTag);
         if (requestEngine == null) {
             OkHttpClient okHttpClient = new OkHttpClient();
@@ -126,11 +127,10 @@ public class RestVolley extends Volley {
             okHttpClient.setConnectTimeout(DEFAULT_HTTP_TIMEOUT, TimeUnit.MILLISECONDS);
             okHttpClient.setReadTimeout(DEFAULT_HTTP_TIMEOUT, TimeUnit.MILLISECONDS);
             okHttpClient.setWriteTimeout(DEFAULT_HTTP_TIMEOUT, TimeUnit.MILLISECONDS);
+            okHttpClient.setSslSocketFactory(CertificateUtils.getDefaultSSLSocketFactory());
+            okHttpClient.setHostnameVerifier(CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER);
 
-            okHttpClient.setSslSocketFactory(SSLManager.instance().getSSLSocketFactory());
-            okHttpClient.setHostnameVerifier(SSLManager.instance().getHostnameVerifier());
-
-            RequestQueue requestQueue = RestVolley.newRequestQueue(context.getApplicationContext(), new OkHttpStack(okHttpClient), DEF_THREAD_POOL_SIZE);
+            RequestQueue requestQueue = newRequestQueue(context.getApplicationContext(), new OkHttpStack(okHttpClient), DEF_THREAD_POOL_SIZE, isStreamBased);
             requestQueue.start();
 
             requestEngine = new RequestEngine(requestQueue, okHttpClient);
@@ -139,6 +139,10 @@ public class RestVolley extends Volley {
         }
 
         return requestEngine;
+    }
+
+    public static RequestEngine newRequestEngine(Context context, String engineTag) {
+        return newRequestEngine(context, engineTag, false);
     }
 
     /**
@@ -187,6 +191,10 @@ public class RestVolley extends Volley {
     }
 
     public static RequestQueue newRequestQueue(Context context, HttpStack stack, int maxDiskCacheBytes, int threadPoolSize) {
+        return newRequestQueue(context, stack, maxDiskCacheBytes, threadPoolSize, false);
+    }
+
+    public static RequestQueue newRequestQueue(Context context, HttpStack stack, int maxDiskCacheBytes, int threadPoolSize, boolean isStreamBasedResponse) {
         File cacheDir = new File(context.getCacheDir(), DEF_CACHE_DIR);
 
         String userAgent = "volley/0";
@@ -207,7 +215,7 @@ public class RestVolley extends Volley {
             }
         }
 
-        Network network = new RestVolleyNetwork(stack);
+        Network network = isStreamBasedResponse ? new StreamBasedNetwork(stack) : new BasicNetwork(stack);
 
         if (threadPoolSize <= 0) {
             threadPoolSize = Runtime.getRuntime().availableProcessors() + 1;
@@ -229,5 +237,9 @@ public class RestVolley extends Volley {
 
     public static RequestQueue newRequestQueue(Context context, HttpStack stack, int threadPoolSize) {
         return newRequestQueue(context, stack, -1, threadPoolSize);
+    }
+
+    public static RequestQueue newRequestQueue(Context context, HttpStack stack, int threadPoolSize, boolean isStreamBasedResponse) {
+        return newRequestQueue(context, stack, -1, threadPoolSize, isStreamBasedResponse);
     }
 }

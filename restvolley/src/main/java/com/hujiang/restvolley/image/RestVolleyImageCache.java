@@ -17,6 +17,9 @@ import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
 
+import com.android.volley.ParseError;
+import com.android.volley.Response;
+import com.android.volley.VolleyLog;
 import com.hujiang.restvolley.MD5Utils;
 import com.hujiang.restvolley.TaskScheduler;
 import com.jakewharton.disklrucache.DiskLruCache;
@@ -40,21 +43,24 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
     private static final int BYTES_IN_PIX = 4;
     private static final int PAGE_CACHE_COUNT = 3;
 
+
     private static final long DEF_DISK_CACHE_SIZE = 128 * 1024 * 1024;
     private static final String DISK_CACHE_DIR = "restvolley_image";
 
     public static long MEM_CACHE_SIZE = 0;
     public static long DISK_CACHE_SIZE = 0;
+    public static long MAX_BITMAP_CACHE_SIZE = 0;
 
     LruCache<String, Bitmap> mMemCache;
     DiskLruCache mDiskCache;
+    File mCacheDir;
 
     /**
      * constructor with default cache config.
      * @param context {@link Context}
      */
     public RestVolleyImageCache(Context context) {
-        this(context, getDefaultCacheSize(context), DEF_DISK_CACHE_SIZE, DISK_CACHE_DIR);
+        this(context, getDefaultCacheSize(context, PAGE_CACHE_COUNT), DEF_DISK_CACHE_SIZE, DISK_CACHE_DIR);
     }
 
     /**
@@ -65,7 +71,8 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
      * @param diskCacheDir disk cache dir.
      */
     public RestVolleyImageCache(Context context, long maxMemCacheSize, long maxDiskCacheSize, String diskCacheDir) {
-        MEM_CACHE_SIZE = maxMemCacheSize > 0 ? maxMemCacheSize : getDefaultCacheSize(context);
+        MEM_CACHE_SIZE = maxMemCacheSize > 0 ? maxMemCacheSize : getDefaultCacheSize(context, PAGE_CACHE_COUNT);
+        MAX_BITMAP_CACHE_SIZE = getMaxBitmapCacheSize(context);
         DISK_CACHE_SIZE = maxDiskCacheSize > 0 ? maxDiskCacheSize : DEF_DISK_CACHE_SIZE;
         String cacheDirStr = TextUtils.isEmpty(diskCacheDir) ? DISK_CACHE_DIR : diskCacheDir;
 
@@ -78,30 +85,43 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
         };
 
         //create disk cache dir
-        File cacheDir = getDiskCacheDir(context, cacheDirStr);
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs();
+        mCacheDir = getDiskCacheDir(context, cacheDirStr);
+        if (!mCacheDir.exists()) {
+            mCacheDir.mkdirs();
         }
 
         //create disk cache
         try {
-            mDiskCache = DiskLruCache.open(cacheDir, 1, 1, DISK_CACHE_SIZE);
+            mDiskCache = DiskLruCache.open(mCacheDir, 1, 1, DISK_CACHE_SIZE);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public DiskLruCache getDiskCache() {
+        if (mDiskCache == null) {
+            //create disk cache
+            try {
+                mDiskCache = DiskLruCache.open(mCacheDir, 1, 1, DISK_CACHE_SIZE);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return mDiskCache;
+    }
+
     public String getDiskCachePath() {
-        if (mDiskCache != null) {
-            return mDiskCache.getDirectory().getAbsolutePath();
+        if (getDiskCache() != null) {
+            return getDiskCache().getDirectory().getAbsolutePath();
         }
 
         return "";
     }
 
     public File getDiskCacheDir() {
-        if (mDiskCache != null) {
-            return mDiskCache.getDirectory();
+        if (getDiskCache() != null) {
+            return getDiskCache().getDirectory();
         }
 
         return null;
@@ -112,9 +132,9 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
         String key = generateKey(cacheKey);
         boolean isInMem = mMemCache.get(key) != null;
         boolean isInDisk = false;
-        if (mDiskCache != null) {
+        if (getDiskCache() != null) {
             try {
-                DiskLruCache.Snapshot snapshot = mDiskCache.get(key);
+                DiskLruCache.Snapshot snapshot = getDiskCache().get(key);
                 if (snapshot != null) {
                     isInDisk = snapshot.getInputStream(0) != null;
                 }
@@ -171,9 +191,9 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
     public boolean remove(String url) {
         String key = generateKey(url);
         mMemCache.remove(key);
-        if (mDiskCache != null) {
+        if (getDiskCache() != null) {
             try {
-                return mDiskCache.remove(key);
+                return getDiskCache().remove(key);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -203,7 +223,9 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
 
         mMemCache.evictAll();
         try {
-            mDiskCache.delete();
+            if (getDiskCache() != null) {
+                getDiskCache().delete();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             isRemoved = false;
@@ -219,7 +241,9 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
     public boolean removeDiskCache() {
         boolean isRemoved = true;
         try {
-            mDiskCache.delete();
+            if (getDiskCache() != null) {
+                getDiskCache().delete();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             isRemoved = false;
@@ -234,12 +258,18 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
      * @param context Context
      * @return cacheSize
      */
-    public static int getDefaultCacheSize(Context context) {
+    public static int getDefaultCacheSize(Context context, int pageCacheCount) {
+        pageCacheCount = pageCacheCount <= 0 ? PAGE_CACHE_COUNT : pageCacheCount;
+
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int screenWith = displayMetrics.widthPixels;
         int screenHeight = displayMetrics.heightPixels;
         int screenBytes = screenWith * screenHeight * BYTES_IN_PIX;
-        return screenBytes * PAGE_CACHE_COUNT;
+        return screenBytes * pageCacheCount;
+    }
+
+    public static int getMaxBitmapCacheSize(Context context) {
+        return getDefaultCacheSize(context, 2);
     }
 
     /**
@@ -270,8 +300,8 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
             @Override
             public void run() {
                 try {
-                    if (mDiskCache != null) {
-                        DiskLruCache.Editor editor = mDiskCache.edit(key);
+                    if (getDiskCache() != null) {
+                        DiskLruCache.Editor editor = getDiskCache().edit(key);
                         if (editor != null) {
                             OutputStream outputStream = editor.newOutputStream(0);
                             bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
@@ -288,25 +318,27 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
     }
 
     private Bitmap getBitmapFromDiskLruCache(String key) {
-        if (mDiskCache == null) {
+        if (getDiskCache() == null) {
             return null;
         }
 
+        String cachePath = new StringBuilder(getDiskCachePath()).append(File.separator).append(key).append(".0").toString();
+        File cacheFile = new File(cachePath);
         try {
-            String cachePath = new StringBuilder(getDiskCachePath()).append(File.separator).append(key).append(".0").toString();
-            File cacheFile = new File(cachePath);
             if (cacheFile.exists()) {
                 return ImageProcessor.decode(cachePath);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } catch (OutOfMemoryError error) {
+            VolleyLog.e("Caught OOM for %d byte image, uri=%s", cacheFile.length(), cachePath);
         }
 
         return null;
     }
 
-    private String generateKey(String url) {
-        return MD5Utils.hashKeyForDisk(url);
+    private String generateKey(String target) {
+        return MD5Utils.hashKeyForDisk(target);
     }
 
     /**
@@ -317,8 +349,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
      */
     public static File getDiskCacheDir(Context context, String uniqueName) {
         String cachePath;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
-                || !Environment.isExternalStorageRemovable()) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()) {
             cachePath = context.getExternalCacheDir().getPath();
         } else {
             cachePath = context.getCacheDir().getPath();

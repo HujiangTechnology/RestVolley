@@ -34,7 +34,6 @@ public class LocalImageListActivity extends AppCompatActivity {
 
         //add built-in images
         mImages.add("assets://assets_default.png");
-        mImages.add("content://media/external/images/media/27916");
         mImages.add("drawable://" + R.drawable.drawable_default);
         mImages.add("drawable://" + R.raw.raw_default);
 
