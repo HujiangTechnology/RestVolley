@@ -9,9 +9,7 @@ package com.hujiang.restvolley.image;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.BufferedInputStream;

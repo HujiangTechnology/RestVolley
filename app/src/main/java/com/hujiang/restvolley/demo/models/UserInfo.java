@@ -6,7 +6,6 @@
 package com.hujiang.restvolley.demo.models;
 
 import com.google.gson.annotations.SerializedName;
-import com.hujiang.restvolley.webapi.RestVolleyModel;
 
 import java.io.Serializable;
 

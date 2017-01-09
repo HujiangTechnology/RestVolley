@@ -8,17 +8,13 @@ package com.hujiang.restvolley.image;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
 
-import com.android.volley.ParseError;
-import com.android.volley.Response;
 import com.android.volley.VolleyLog;
 import com.hujiang.restvolley.MD5Utils;
 import com.hujiang.restvolley.TaskScheduler;
@@ -26,10 +22,7 @@ import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-
-import static com.hujiang.restvolley.image.ImageProcessor.BYTE_IN_PIX;
 
 /**
  * image cache that contains memory cache and disk cache.

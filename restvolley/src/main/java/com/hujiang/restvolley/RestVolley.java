@@ -18,12 +18,12 @@ import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.RestResponseDelivery;
-import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpClientStack;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
+import com.hujiang.restvolley.compat.RVNetwork;
 import com.hujiang.restvolley.compat.StreamBasedNetwork;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -215,7 +215,7 @@ public class RestVolley extends Volley {
             }
         }
 
-        Network network = isStreamBasedResponse ? new StreamBasedNetwork(stack) : new BasicNetwork(stack);
+        Network network = isStreamBasedResponse ? new StreamBasedNetwork(stack) : new RVNetwork(stack);
 
         if (threadPoolSize <= 0) {
             threadPoolSize = Runtime.getRuntime().availableProcessors() + 1;
