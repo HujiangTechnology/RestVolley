@@ -1,7 +1,9 @@
+### v1.0.13(2017-01-09)
+* 修复1.0.12版本引起的超时重试时请求队列被阻塞的问题
 
 ### v1.0.12(2016-12-29)
 * 优化图片内存问题
-* 解决清图片缓存是DiskLruCache出现IllegalStateException:cache is closed
+* 解决清除图片缓存时DiskLruCache出现异常：IllegalStateException:cache is closed
 * RestVolleyImageLoader支持流式图片下载，降低内存占用率
 * 优化https支持, 默认信任所有请求，安全要求较高的app可以通过接口设置SSLSocketFactory和HostnameVerifier，或者添加证书锁定CertificatePinner来增加安全性
 * 提供常量CertificateUtils.DEFAULT_HOSTNAME_VERIFIER; CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER
