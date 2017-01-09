@@ -9,8 +9,6 @@ package com.hujiang.restvolley;
 import android.text.TextUtils;
 import android.util.Log;
 
-//import com.squareup.okhttp.internal.tls.OkHostnameVerifier;
-
 import com.squareup.okhttp.internal.tls.OkHostnameVerifier;
 
 import java.io.IOException;
@@ -32,6 +30,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+
+//import com.squareup.okhttp.internal.tls.OkHostnameVerifier;
 
 
 /**

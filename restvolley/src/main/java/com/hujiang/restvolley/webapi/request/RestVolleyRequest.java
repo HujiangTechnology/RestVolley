@@ -25,6 +25,7 @@ import com.hujiang.restvolley.CertificateUtils;
 import com.hujiang.restvolley.GsonUtils;
 import com.hujiang.restvolley.RequestEngine;
 import com.hujiang.restvolley.RestVolley;
+import com.hujiang.restvolley.compat.RVNetwork;
 import com.hujiang.restvolley.compat.StreamBasedNetwork;
 import com.hujiang.restvolley.compat.StreamBasedNetworkResponse;
 import com.hujiang.restvolley.webapi.RestVolleyCallback;
@@ -848,7 +849,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
         if (response instanceof StreamBasedNetworkResponse) {
             InputStream inputStream = ((StreamBasedNetworkResponse) response).inputStream;
             if (inputStream != null) {
-                datas = StreamBasedNetwork.entityToBytes(inputStream, ((StreamBasedNetworkResponse) response).contentLength, StreamBasedNetwork.DEFAULT_POOL_SIZE);
+                datas = StreamBasedNetwork.entityToBytes(inputStream, ((StreamBasedNetworkResponse) response).contentLength, RVNetwork.DEFAULT_POOL_SIZE);
             } else {
                 datas = response.data;
             }
@@ -900,7 +901,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                     InputStream s = ((StreamBasedNetworkResponse) response).inputStream;
                     if (s != null) {
                         try {
-                            datas = StreamBasedNetwork.entityToBytes(s, ((StreamBasedNetworkResponse) response).contentLength, StreamBasedNetwork.DEFAULT_POOL_SIZE);
+                            datas = StreamBasedNetwork.entityToBytes(s, ((StreamBasedNetworkResponse) response).contentLength, RVNetwork.DEFAULT_POOL_SIZE);
                         } catch (IOException e) {
                             exception = e;
                         } catch (ServerError serverError) {

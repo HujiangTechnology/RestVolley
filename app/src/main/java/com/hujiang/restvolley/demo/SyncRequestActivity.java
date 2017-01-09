@@ -1,9 +1,7 @@
 package com.hujiang.restvolley.demo;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-import com.hujiang.restvolley.webapi.request.GetRequest;
+import android.support.v7.app.AppCompatActivity;
 
 public class SyncRequestActivity extends AppCompatActivity {
 
