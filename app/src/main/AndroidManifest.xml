@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.hujiang.restvolley.demo"
+<manifest package="com.hujiang.restvolley2.demo"
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 
@@ -17,14 +17,14 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
-        android:name=".DemoApplication"
+        android:name="com.hujiang.restvolley2.demo.DemoApplication"
         android:allowBackup="true"
         android:label="网络模块Demo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:label">
         <activity
-            android:name=".MainActivity"
+            android:name="com.hujiang.restvolley2.demo.MainActivity"
             android:label="网络模块Demo"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -33,16 +33,16 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".DownloadActivity"/>
-        <activity android:name=".LocalImageListActivity">
+        <activity android:name="com.hujiang.restvolley2.demo.DownloadActivity"/>
+        <activity android:name="com.hujiang.restvolley2.demo.LocalImageListActivity">
         </activity>
-        <activity android:name=".NetImageListActivity">
+        <activity android:name="com.hujiang.restvolley2.demo.NetImageListActivity">
         </activity>
-        <activity android:name=".RestfulAPIActivity">
+        <activity android:name="com.hujiang.restvolley2.demo.RestfulAPIActivity">
         </activity>
-        <activity android:name=".SyncRequestActivity">
+        <activity android:name="com.hujiang.restvolley2.demo.SyncRequestActivity">
         </activity>
-        <activity android:name=".HTTPSActivity">
+        <activity android:name="com.hujiang.restvolley2.demo.HTTPSActivity">
         </activity>
     </application>
 

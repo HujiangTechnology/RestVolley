@@ -11,7 +11,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context="com.hujiang.restvolley.demo.HTTPSActivity"
+        tools:context="com.hujiang.restvolley2.demo.HTTPSActivity"
         android:orientation="vertical"
         android:gravity="center_horizontal">
         <Button
