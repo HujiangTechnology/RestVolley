@@ -13,6 +13,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
@@ -38,6 +39,7 @@ import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.Proxy;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -337,11 +339,11 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
                 response.exception = (Exception) cause;
                 response.message = cause.getMessage();
                 NetworkResponse networkResponse = ((VolleyError) cause).networkResponse;
-                response.statusCode = networkResponse.statusCode;
+                response.statusCode = networkResponse != null ? networkResponse.statusCode : -1;
                 response.headers = networkResponse != null ? networkResponse.headers : response.headers;
                 response.networkTimeMs = networkResponse != null ? networkResponse.networkTimeMs : response.networkTimeMs;
                 response.notModified = networkResponse != null ? networkResponse.notModified : response.notModified;
-                response.data = (DATA)mVolleyRequest.parseNetworkResponse2RVResponse(networkResponse).data;
+                response.data = networkResponse != null ? (DATA)mVolleyRequest.parseNetworkResponse2RVResponse(networkResponse).data : null;
             }
         }
 
@@ -881,6 +883,12 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
 
         protected RestVolleyResponse<T> parseNetworkResponse2RVResponse(NetworkResponse response) {
             RestVolleyResponse<T> result;
+
+            if (response == null) {
+                Exception e = new NoConnectionError();
+                return new RestVolleyResponse<T>(0, null, null, false, 0, e.toString(), e);
+            }
+
             if (mClassT == String.class) {
                 //return data as string
                 String content = "";
