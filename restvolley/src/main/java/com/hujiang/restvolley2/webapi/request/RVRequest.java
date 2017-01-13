@@ -13,6 +13,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
@@ -343,11 +344,11 @@ public abstract class RVRequest<R extends RVRequest> {
                 response.exception = (Exception) cause;
                 response.message = cause.getMessage();
                 NetworkResponse networkResponse = ((VolleyError) cause).networkResponse;
-                response.statusCode = networkResponse.statusCode;
+                response.statusCode = networkResponse != null ? networkResponse.statusCode : 0;
                 response.headers = networkResponse != null ? networkResponse.headers : response.headers;
                 response.networkTimeMs = networkResponse != null ? networkResponse.networkTimeMs : response.networkTimeMs;
                 response.notModified = networkResponse != null ? networkResponse.notModified : response.notModified;
-                response.data = (DATA)mVolleyRequest.parseNetworkResponse2RVResponse(networkResponse).data;
+                response.data = networkResponse != null ? (DATA)mVolleyRequest.parseNetworkResponse2RVResponse(networkResponse).data : null;
             }
         }
 
@@ -886,6 +887,11 @@ public abstract class RVRequest<R extends RVRequest> {
         }
 
         protected RVResponse<T> parseNetworkResponse2RVResponse(NetworkResponse response) {
+            if (response == null) {
+                Exception e = new NoConnectionError();
+                return new RVResponse<T>(0, null, null, false, 0, e.toString(), e);
+            }
+
             RVResponse<T> result;
             if (mClassT == String.class) {
                 //return data as string
