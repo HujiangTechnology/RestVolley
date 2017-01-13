@@ -7,10 +7,6 @@ package com.android.volley;
 
 import android.os.Handler;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.ResponseDelivery;
-import com.android.volley.VolleyError;
 import com.hujiang.restvolley2.compat.RetryError;
 
 import java.util.concurrent.Executor;

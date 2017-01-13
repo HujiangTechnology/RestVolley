@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
-import java.sql.Time;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;

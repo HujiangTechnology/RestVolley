@@ -7,19 +7,14 @@
 package com.hujiang.restvolley2;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.net.http.AndroidHttpClient;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.android.volley.Network;
+import com.android.volley.RVResponseDelivery;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.RVResponseDelivery;
 import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HttpClientStack;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
@@ -205,22 +200,8 @@ public class RestVolley extends Volley {
     public static RequestQueue newRequestQueue(Context context, HttpStack stack, int maxDiskCacheBytes, int threadPoolSize, boolean isStreamBasedResponse) {
         File cacheDir = new File(context.getCacheDir(), DEF_CACHE_DIR);
 
-        String userAgent = "volley/0";
-        try {
-            String packageName = context.getPackageName();
-            PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
-            userAgent = packageName + "/" + info.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-        }
-
         if (stack == null) {
-            if (Build.VERSION.SDK_INT >= 9) {
-                stack = new HurlStack();
-            } else {
-                // Prior to Gingerbread, HttpUrlConnection was unreliable.
-                // See: http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-                stack = new HttpClientStack(AndroidHttpClient.newInstance(userAgent));
-            }
+            stack = new HurlStack();
         }
 
         Network network = isStreamBasedResponse ? new StreamBasedNetwork(stack) : new RVNetwork(stack);
@@ -244,6 +225,7 @@ public class RestVolley extends Volley {
     }
 
     public static RequestQueue newRequestQueue(Context context, HttpStack stack, int threadPoolSize) {
+
         return newRequestQueue(context, stack, -1, threadPoolSize);
     }
 
