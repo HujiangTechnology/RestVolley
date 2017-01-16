@@ -1,3 +1,6 @@
+### v1.0.15(2017-01-16)
+* 解决NullPointerException的问题
+
 ### v1.0.14(2017-01-13)
 * 修复无网络情况下同步接口出现NullException的Bug
 
