@@ -756,19 +756,21 @@ public class ImageLoaderCompat {
                 @Override
                 public void run() {
                     for (BatchedImageRequest bir : mBatchedResponses.values()) {
-                        for (ImageContainer container : bir.mContainers) {
-                            // If one of the callers in the batched request canceled the request
-                            // after the response was received but before it was delivered,
-                            // skip them.
-                            container.mLoadFrom = LoadFrom.NETWORK;
-                            if (container.mListener == null) {
-                                continue;
-                            }
-                            if (bir.getError() == null) {
-                                container.mBitmap = bir.mResponseBitmap;
-                                container.mListener.onResponse(container, false);
-                            } else {
-                                container.mListener.onErrorResponse(bir.getError());
+                        if (bir != null) {
+                            for (ImageContainer container : bir.mContainers) {
+                                // If one of the callers in the batched request canceled the request
+                                // after the response was received but before it was delivered,
+                                // skip them.
+                                container.mLoadFrom = LoadFrom.NETWORK;
+                                if (container.mListener == null) {
+                                    continue;
+                                }
+                                if (bir.getError() == null) {
+                                    container.mBitmap = bir.mResponseBitmap;
+                                    container.mListener.onResponse(container, false);
+                                } else {
+                                    container.mListener.onErrorResponse(bir.getError());
+                                }
                             }
                         }
                     }
