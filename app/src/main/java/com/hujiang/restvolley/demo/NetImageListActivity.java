@@ -27,6 +27,9 @@ public class NetImageListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_net_image_list);
 
+        mImages.add("http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp");
+        mImages.add("https://lh6.ggpht.com/kktCUrKvuLPxZsywDppiRMto8ECfr3Kv70RWLnRogXqJEydm9cMdLlxDNVMaxsHoDyA=h310-rw");
+
 //        http://placehold.it/350x150
         String mainUrl = "https://dummyimage.com/";
         int width = 100;

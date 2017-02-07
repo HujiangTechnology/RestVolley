@@ -8,6 +8,7 @@ package com.hujiang.restvolley.image;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.TextUtils;
 import android.widget.ImageView;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -177,7 +178,7 @@ public class RVImageRequest extends Request<Bitmap> {
             InputStream bitmapStream = ((StreamBasedNetworkResponse) response).inputStream;
             if (bitmapStream != null) {
                 //parse bitmap stream
-                bitmap = doParseStreamSafe(bitmapStream, ((StreamBasedNetworkResponse) response).contentLength);
+                bitmap = doParseStreamSafe(bitmapStream, ((StreamBasedNetworkResponse) response).contentLength, response.headers.get("Content-Type"));
             } else {
                 //parse bitmap bytes
                 bitmap = doParseBytes(response.data);
@@ -221,7 +222,7 @@ public class RVImageRequest extends Request<Bitmap> {
         return bitmap;
     }
 
-    private Bitmap doParseStreamSafe(InputStream bitmapStream, long contentLength) {
+    private Bitmap doParseStreamSafe(InputStream bitmapStream, long contentLength, String contentType) {
         if (bitmapStream == null) {
             return null;
         }
@@ -229,7 +230,8 @@ public class RVImageRequest extends Request<Bitmap> {
         Bitmap bitmap;
         BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
 
-        if (contentLength <= RestVolleyImageCache.MAX_BITMAP_CACHE_SIZE) {
+        String lowerContentType = TextUtils.isEmpty(contentType) ? "" : contentType.toLowerCase();
+        if (!"image/webp".equals(lowerContentType) && contentLength <= RestVolleyImageCache.MAX_BITMAP_CACHE_SIZE) {
             decodeOptions.inJustDecodeBounds = false;
             decodeOptions.inPreferredConfig = mDecodeConfig;
 
