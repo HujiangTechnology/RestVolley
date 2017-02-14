@@ -39,7 +39,6 @@ import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
 import java.net.Proxy;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -937,7 +936,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
 
                 if (!TextUtils.isEmpty(content)) {
                     try {
-                        data = GsonUtils.fromJsonString(content, mClassT);
+                        data = GsonUtils.fromJsonStringThrowEx(content, mClassT);
                     } catch (JsonSyntaxException e) {
                         exception = e;
                     }

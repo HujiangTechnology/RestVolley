@@ -17,7 +17,8 @@ public class RestfulAPIActivity extends AppCompatActivity {
     private static final String TAG = RestfulAPIActivity.class.getSimpleName();
 
     private static final String[] CONCURRENCE_URLS = {
-            "https://www.google.co.in/"
+            "https://qastudy.hjapi.com/api/v1/galleries/index"
+            , "https://www.google.co.in/"
             , "http://www.baidu.com"
             , "http://stackoverflow.com/"
             , "http://www.hujiang.com"
