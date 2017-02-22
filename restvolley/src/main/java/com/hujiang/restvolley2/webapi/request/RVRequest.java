@@ -130,7 +130,7 @@ public abstract class RVRequest<R extends RVRequest> {
     protected SSLSocketFactory mSSLSocketFactory = CertificateUtils.getDefaultSSLSocketFactory();
     protected HostnameVerifier mHostnameVerifier = CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
     private Map<String, String> mPinners = new LinkedHashMap<>();
-    protected Proxy mProxy = Proxy.NO_PROXY;
+    protected Proxy mProxy;
     protected long mConnectTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
     protected long mReadTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
     protected long mWriteTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
@@ -941,7 +941,7 @@ public abstract class RVRequest<R extends RVRequest> {
 
                 if (!TextUtils.isEmpty(content)) {
                     try {
-                        data = GsonUtils.fromJsonString(content, mClassT);
+                        data = GsonUtils.fromJsonStringThrowEx(content, mClassT);
                     } catch (JsonSyntaxException e) {
                         exception = e;
                     }

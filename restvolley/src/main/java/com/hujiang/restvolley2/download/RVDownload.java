@@ -66,7 +66,7 @@ public class RVDownload {
     private SSLSocketFactory mSSLSocketFactory = CertificateUtils.getDefaultSSLSocketFactory();
     private HostnameVerifier mHostnameVerifier = CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
     private Map<String, String> mPinners = new LinkedHashMap<>();
-    private Proxy mProxy = Proxy.NO_PROXY;
+    private Proxy mProxy;
     private long mConnectTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
     private long mReadTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
     private long mWriteTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
