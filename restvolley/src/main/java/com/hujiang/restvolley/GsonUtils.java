@@ -10,8 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-import org.json.JSONObject;
-
 import java.lang.reflect.Type;
 
 /**

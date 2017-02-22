@@ -129,7 +129,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
     protected SSLSocketFactory mSSLSocketFactory = CertificateUtils.getDefaultSSLSocketFactory();
     protected HostnameVerifier mHostnameVerifier = CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
     private Map<String, String> mPinners = new LinkedHashMap<>();
-    protected Proxy mProxy = Proxy.NO_PROXY;
+    protected Proxy mProxy;
     protected long mConnectTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
     protected long mReadTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
     protected long mWriteTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;
@@ -204,10 +204,11 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
     private void bindOkHttpClient() {
         mRequestEngine.okHttpClient.setSslSocketFactory(mSSLSocketFactory);
         mRequestEngine.okHttpClient.setHostnameVerifier(mHostnameVerifier);
-        mRequestEngine.okHttpClient.setProxy(mProxy);
+
         mRequestEngine.okHttpClient.setConnectTimeout(mConnectTimeout, TimeUnit.MILLISECONDS);
         mRequestEngine.okHttpClient.setReadTimeout(mReadTimeout, TimeUnit.MILLISECONDS);
         mRequestEngine.okHttpClient.setWriteTimeout(mWriteTimeout, TimeUnit.MILLISECONDS);
+        mRequestEngine.okHttpClient.setProxy(mProxy);
 
         if (!mPinners.isEmpty()) {
             Set<Map.Entry<String, String>> sets = mPinners.entrySet();

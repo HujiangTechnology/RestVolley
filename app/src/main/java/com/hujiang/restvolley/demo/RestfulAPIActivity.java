@@ -24,6 +24,7 @@ public class RestfulAPIActivity extends AppCompatActivity {
             , "http://www.hujiang.com"
             , "https://bintray.com/"
             , "http://www.infoq.com/cn/"
+            ,"https://mobile.hjapi.com/mobileapp/appUpmobile.ashx"
     };
 
     private LinearLayout mRestGroup;

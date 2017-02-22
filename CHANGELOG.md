@@ -1,3 +1,8 @@
+### v1.0.17(2017-02-22)
+* 添加api GsonUtils.fromJsonStringThrowEx， GsonUtils.optFromJsonString，GsonUtils.toJsonStringThrowEx，GsonUtils.optToJsonString
+* 优化Demo
+* 优化联网代理问题
+
 ### v1.0.16(2017-02-07)
 * 解决部分4.+手机固件上webp图片加载的问题
 
