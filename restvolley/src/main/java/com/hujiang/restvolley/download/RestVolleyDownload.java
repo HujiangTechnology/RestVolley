@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import com.hujiang.restvolley.CertificateUtils;
 import com.hujiang.restvolley.RequestEngine;
 import com.hujiang.restvolley.RestVolley;
+import com.hujiang.restvolley.webapi.request.RestVolleyRequest;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.CertificatePinner;
 import com.squareup.okhttp.Headers;
@@ -135,6 +136,19 @@ public class RestVolleyDownload {
      */
     public RestVolleyDownload addHeader(Headers headers) {
         mRequestBuilder.headers(headers);
+
+        return this;
+    }
+
+    /**
+     * set request user agent.
+     * @param userAgent user agent.
+     * @return {@link RestVolleyRequest}
+     */
+    public RestVolleyDownload setUserAgent(String userAgent) {
+        if (!TextUtils.isEmpty(userAgent)) {
+            mRequestBuilder.addHeader(RestVolley.HEADER_USER_AGENT, userAgent);
+        }
 
         return this;
     }
