@@ -143,7 +143,7 @@ public class RestVolleyDownload {
     /**
      * set request user agent.
      * @param userAgent user agent.
-     * @return {@link RestVolleyRequest}
+     * @return
      */
     public RestVolleyDownload setUserAgent(String userAgent) {
         if (!TextUtils.isEmpty(userAgent)) {
