@@ -1,3 +1,6 @@
+### v1.0.18(2017-03-08)
+* 修复gzip 压缩参数Content-Encoding, Accept-Encoding支持的Bug
+
 ### v1.0.17(2017-02-22)
 * 添加api GsonUtils.fromJsonStringThrowEx， GsonUtils.optFromJsonString，GsonUtils.toJsonStringThrowEx，GsonUtils.optToJsonString
 * 优化Demo

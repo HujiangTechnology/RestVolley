@@ -25,6 +25,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.ByteArrayPool;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.PoolingByteArrayOutputStream;
+import com.hujiang.restvolley.RestVolley;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -44,6 +45,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.GZIPInputStream;
 
 /**
  * class description here
@@ -255,13 +257,20 @@ public class RVNetwork implements Network {
                 new PoolingByteArrayOutputStream(mPool, (int) entity.getContentLength());
         byte[] buffer = null;
         try {
-            InputStream in = entity.getContent();
-            if (in == null) {
+            Header contentEncodingHeader = entity.getContentEncoding();
+            String contentEncoding = contentEncodingHeader == null ? null : contentEncodingHeader.getValue();
+            if (contentEncoding != null) {
+                contentEncoding = contentEncoding.toLowerCase();
+            }
+            boolean isGzipEnable = contentEncoding != null ? contentEncoding.contains(RestVolley.ENCODING_GZIP) : false;
+            InputStream inputStream = isGzipEnable ? new GZIPInputStream(entity.getContent()) : entity.getContent();
+
+            if (inputStream == null) {
                 throw new ServerError();
             }
             buffer = mPool.getBuf(1024);
             int count;
-            while ((count = in.read(buffer)) != -1) {
+            while ((count = inputStream.read(buffer)) != -1) {
                 bytes.write(buffer, 0, count);
             }
             return bytes.toByteArray();

@@ -11,6 +11,8 @@ import android.text.TextUtils;
 
 import com.hujiang.restvolley.RestVolley;
 
+import junit.framework.Assert;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -26,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * request with body.
@@ -77,8 +80,14 @@ public class RestVolleyRequestWithBody<R extends RestVolleyRequest> extends Rest
 
     @Override
     protected byte[] onBuildBody() {
+        String contentEncoding = mHeaders.get(RestVolley.HEADER_CONTENT_ENCODING);
+        if (contentEncoding != null) {
+            contentEncoding = contentEncoding.toLowerCase();
+        }
+        boolean isGzipEnable = contentEncoding != null && contentEncoding.contains(RestVolley.ENCODING_GZIP);
+
         if (mBody != null) {
-            return mBody;
+            return processBody(isGzipEnable, mBody);
         } else {
             if (mHttpEntity == null) {
                 if (mStreamParams.isEmpty() && mFileParams.isEmpty()) {
@@ -100,11 +109,9 @@ public class RestVolleyRequestWithBody<R extends RestVolleyRequest> extends Rest
                 }
             }
 
-            ByteArrayOutputStream byteArrayOutputStream = null;
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             try {
-                byteArrayOutputStream = new ByteArrayOutputStream();
                 mHttpEntity.writeTo(byteArrayOutputStream);
-                return byteArrayOutputStream.toByteArray();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -116,8 +123,37 @@ public class RestVolleyRequestWithBody<R extends RestVolleyRequest> extends Rest
                     }
                 }
             }
+
+            return processBody(isGzipEnable, byteArrayOutputStream.toByteArray());
         }
-        return null;
+    }
+
+    private byte[] processBody(boolean isGzipEnable, byte[] bodyContent) {
+        Assert.assertNotNull(bodyContent);
+
+        byte[] bodyResult = bodyContent;
+        if (isGzipEnable) {
+            GZIPOutputStream gzipOutputStream = null;
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            try {
+                gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+                gzipOutputStream.write(bodyContent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (gzipOutputStream != null) {
+                    try {
+                        gzipOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            bodyResult = byteArrayOutputStream.toByteArray();
+        }
+
+        return bodyResult;
     }
 
     /**
