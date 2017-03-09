@@ -1,3 +1,6 @@
+### v1.0.19(2017-03-09)
+* 修复接口RestVolleyImageLoader.isCached(..)返回状态不对的Bug
+
 ### v1.0.18(2017-03-08)
 * 修复gzip 压缩参数Content-Encoding, Accept-Encoding支持的Bug
 

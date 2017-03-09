@@ -136,7 +136,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
             }
         }
 
-        return isInMem && isInDisk;
+        return isInMem || isInDisk;
     }
 
     @Override
