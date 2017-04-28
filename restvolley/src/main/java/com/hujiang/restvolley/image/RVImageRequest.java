@@ -39,7 +39,7 @@ public class RVImageRequest extends Request<Bitmap> {
     /**
      * Socket timeout in milliseconds for image requests
      */
-    private static final int IMAGE_TIMEOUT_MS = 1000;
+    private static final int IMAGE_TIMEOUT_MS = 10000;
 
     /**
      * Default number of retries for image requests

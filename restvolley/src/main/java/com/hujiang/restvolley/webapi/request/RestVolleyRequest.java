@@ -99,7 +99,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
     /**
      * {@link RetryPolicy}.
      */
-    protected RetryPolicy mRetryPolicy = new DefaultRetryPolicy();
+    protected RetryPolicy mRetryPolicy = new DefaultRetryPolicy(10000, 0, 1);
     /**
      * {@link com.android.volley.Cache.Entry}.
      */

@@ -339,6 +339,7 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
      * @param context {@link Context}
      * @param uniqueName unique dir name
      * @return dir file
+     * TODO context.getExternalCacheDir() is null
      */
     public static File getDiskCacheDir(Context context, String uniqueName) {
         String cachePath;

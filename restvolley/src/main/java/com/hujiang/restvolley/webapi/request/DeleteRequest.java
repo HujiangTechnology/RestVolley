@@ -14,17 +14,20 @@ import com.android.volley.Request;
 import java.util.Set;
 
 /**
- * Delete method request.
+ * Delete request.
+ *
  * <br>
- * delete method request can not support body request if you create instance with {@link #DeleteRequest(Context)}. <br>
+ * <p>
+ * delete request can not support body request by default if you create instance with {@link #DeleteRequest(Context)}. <br>
  * otherwise than {@link #DeleteRequest(Context, boolean)}.
+ * </p>
  * @author simon
  * @version 1.0.0
  * @since 2015-11-25
  */
 public class DeleteRequest extends RestVolleyRequestWithBody<DeleteRequest> {
 
-    private boolean bodyRequest = false;
+    private boolean mIsBodyEnable = false;
 
     /**
      * constructor, can not support body request.
@@ -37,16 +40,16 @@ public class DeleteRequest extends RestVolleyRequestWithBody<DeleteRequest> {
     /**
      * constructor, support body request if you set bodyrequest as true.
      * @param context {@link Context}
-     * @param bodyRequest support body request or not
+     * @param isBodyEnable support body request or not
      */
-    public DeleteRequest(Context context, boolean bodyRequest) {
+    public DeleteRequest(Context context, boolean isBodyEnable) {
         super(context, Request.Method.DELETE);
-        this.bodyRequest = bodyRequest;
+        this.mIsBodyEnable = isBodyEnable;
     }
 
     @Override
     protected String onBuildUrl() {
-        if (bodyRequest) {
+        if (mIsBodyEnable) {
             return mUrl;
         } else {
             String url = mUrl;
@@ -62,10 +65,6 @@ public class DeleteRequest extends RestVolleyRequestWithBody<DeleteRequest> {
 
     @Override
     protected byte[] onBuildBody() {
-        if (bodyRequest) {
-            return super.onBuildBody();
-        } else {
-            return null;
-        }
+        return mIsBodyEnable ? super.onBuildBody() : null;
     }
 }

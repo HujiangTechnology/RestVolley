@@ -1,3 +1,6 @@
+### v1.0.20(2017-04-28)
+* [add]`DeleteRequest`支持`body`，使用构造函数`DeleteRequest(Context context, boolean isBodyEnable)`支持`body`
+
 ### v1.0.19(2017-03-09)
 * 修复接口RestVolleyImageLoader.isCached(..)返回状态不对的Bug
 
