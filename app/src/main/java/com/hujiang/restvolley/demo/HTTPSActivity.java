@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.hujiang.restvolley.CertificateUtils;
 import com.hujiang.restvolley.webapi.RestVolleyCallback;
 import com.hujiang.restvolley.webapi.request.GetRequest;
 
@@ -40,7 +41,11 @@ public class HTTPSActivity extends AppCompatActivity {
         findViewById(R.id.btn_self_ca).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new GetRequest(HTTPSActivity.this).url("https://app.m.hjfile.cn/android/appsbar/").execute(new RestVolleyCallback<String>() {
+                new GetRequest(HTTPSActivity.this)
+                        .url("https://app.m.hjfile.cn/android/appsbar/")
+                        .setHostnameVerifier(CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER)
+                        .setTimeout(60000)
+                        .execute(new RestVolleyCallback<String>() {
                     @Override
                     public void onSuccess(int statusCode, String data, Map<String, String> headers, boolean notModified, long networkTimeMs, String message) {
                         mRequestContentView.setText(statusCode + "===>" + data + "===>" + message);

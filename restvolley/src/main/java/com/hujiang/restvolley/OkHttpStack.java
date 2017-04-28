@@ -52,7 +52,6 @@ public class OkHttpStack implements HttpStack {
     }
 
     private final HurlStack.UrlRewriter mUrlRewriter;
-    private final SSLSocketFactory mSslSocketFactory;
     private OkUrlFactory mOkUrlFactory;
 
     public OkHttpStack() {
@@ -67,16 +66,7 @@ public class OkHttpStack implements HttpStack {
      * @param urlRewriter Rewriter to use for request URLs
      */
     public OkHttpStack(OkHttpClient okHttpClient, HurlStack.UrlRewriter urlRewriter) {
-        this(okHttpClient, urlRewriter, null);
-    }
-
-    /**
-     * @param urlRewriter Rewriter to use for request URLs
-     * @param sslSocketFactory SSL factory to use for HTTPS connections
-     */
-    public OkHttpStack(OkHttpClient okHttpClient, HurlStack.UrlRewriter urlRewriter, SSLSocketFactory sslSocketFactory) {
         mUrlRewriter = urlRewriter;
-        mSslSocketFactory = sslSocketFactory;
         mOkUrlFactory = new OkUrlFactory(okHttpClient);
     }
 
@@ -177,16 +167,8 @@ public class OkHttpStack implements HttpStack {
     private HttpURLConnection openConnection(URL url, Request<?> request) throws IOException {
         HttpURLConnection connection = createConnection(url);
 
-        int timeoutMs = request.getTimeoutMs();
-        connection.setConnectTimeout(timeoutMs);
-        connection.setReadTimeout(timeoutMs);
         connection.setUseCaches(false);
         connection.setDoInput(true);
-
-        // use caller-provided custom SslSocketFactory, if any, for HTTPS
-        if ("https".equals(url.getProtocol()) && mSslSocketFactory != null) {
-            ((HttpsURLConnection)connection).setSSLSocketFactory(mSslSocketFactory);
-        }
 
         return connection;
     }
