@@ -339,17 +339,29 @@ public class RestVolleyImageCache extends ImageLoaderCompat.ImageCache {
      * @param context {@link Context}
      * @param uniqueName unique dir name
      * @return dir file
-     * TODO context.getExternalCacheDir() is null
      */
     public static File getDiskCacheDir(Context context, String uniqueName) {
-        String cachePath;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()) {
-            cachePath = context.getExternalCacheDir().getPath();
-        } else {
-            cachePath = context.getCacheDir().getPath();
+        File cacheDir = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            cacheDir = context.getExternalCacheDir();
         }
-        return new File(cachePath + File.separator + uniqueName);
 
+        if (cacheDir == null) {
+            final String cacheDirPath = "/Android/data/" + context.getPackageName();
+            cacheDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + cacheDirPath);
+        }
+
+        if (cacheDir != null && !cacheDir.exists()) {
+            cacheDir.mkdirs();
+
+            try {
+                new File(cacheDir.getAbsolutePath() + "/.nomedia").createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return new File(cacheDir.getAbsolutePath() + File.separator + uniqueName);
     }
 
 }

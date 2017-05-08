@@ -1,4 +1,7 @@
-### v1.0.20(2017-04-28)
+## v1.0.21(2017-05-08)
+*[fix] NullPointException on RestVolleyImageCache.getDiskCacheDir(Context context, String uniqueName)
+
+## v1.0.20(2017-04-28)
 * [add]`DeleteRequest`支持`body`，使用构造函数`DeleteRequest(Context context, boolean isBodyEnable)`支持`body`
 
 ### v1.0.19(2017-03-09)
