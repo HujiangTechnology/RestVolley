@@ -163,7 +163,11 @@ public class RVImageRequest extends Request<Bitmap> {
             try {
                 return doParse(response);
             } catch (OutOfMemoryError e) {
-                VolleyLog.e("Caught OOM for %d byte image, url=%s", response.data.length, getUrl());
+                int size = 0;
+                if (response != null && response.data != null) {
+                    size = response.data.length;
+                }
+                VolleyLog.e("Caught OOM for %d byte image, url=%s", size, getUrl());
                 return Response.error(new ParseError(e));
             }
         }
