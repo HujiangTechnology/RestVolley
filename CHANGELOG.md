@@ -1,3 +1,6 @@
+## v.1.0.22(2017-06-13)
+* [add] add method setProxy to RestVolleyRequest
+
 ## v1.0.21(2017-05-08)
 *[fix] NullPointException on RestVolleyImageCache.getDiskCacheDir(Context context, String uniqueName)
 

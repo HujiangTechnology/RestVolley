@@ -29,6 +29,7 @@ import com.hujiang.restvolley.RestVolley;
 import com.hujiang.restvolley.compat.RVNetwork;
 import com.hujiang.restvolley.compat.StreamBasedNetwork;
 import com.hujiang.restvolley.compat.StreamBasedNetworkResponse;
+import com.hujiang.restvolley.download.RestVolleyDownload;
 import com.hujiang.restvolley.webapi.RestVolleyCallback;
 import com.hujiang.restvolley.webapi.RestVolleyModel;
 import com.hujiang.restvolley.webapi.RestVolleyResponse;
@@ -39,7 +40,9 @@ import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -185,6 +188,33 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
             mPinners.put(hostname, pinner);
         }
     }
+
+
+    /**
+     * set proxy.
+     * @param proxy {@link Proxy}
+     * @return
+     */
+    public R setProxy(Proxy proxy) {
+        mProxy = proxy;
+        return (R)this;
+    }
+
+    /**
+     * set proxy.
+     * @param host proxy host
+     * @param port proxy port
+     * @return {@link RestVolleyDownload}
+     */
+    public R setProxy(String host, int port) {
+        if (!TextUtils.isEmpty(host)) {
+            SocketAddress address = new InetSocketAddress(host, port);
+            mProxy = new Proxy(Proxy.Type.HTTP, address);
+        }
+
+        return (R)this;
+    }
+
     /**
      * build request body as you need.
      * @return byte[]
