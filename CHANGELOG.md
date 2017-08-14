@@ -1,7 +1,10 @@
-## v.1.0.22(2017-06-13)
+### v1.1.0(2017-08-14)
+* [add] add callback to syncExecute methods
+
+### v.1.0.22(2017-06-13)
 * [add] add method setProxy to RestVolleyRequest
 
-## v1.0.21(2017-05-08)
+### v1.0.21(2017-05-08)
 *[fix] NullPointException on RestVolleyImageCache.getDiskCacheDir(Context context, String uniqueName)
 
 ## v1.0.20(2017-04-28)

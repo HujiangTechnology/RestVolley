@@ -387,6 +387,42 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
     public RestVolleyResponse<String> syncExecute() {
         return syncExecute(String.class);
     }
+    public <DATA> void syncExecute(Class<DATA> clazz, RestVolleyCallback<DATA> callback) {
+        if (callback == null) {
+            return;
+        }
+        //start callback
+        callback.onStart(this);
+
+        //do request
+        RestVolleyResponse<DATA> response = syncExecute(clazz);
+
+        if (response.exception instanceof VolleyError) {
+            callback.onFail(response.statusCode, response.data, response.headers, response.notModified, response.networkTimeMs, response.message);
+        } else {
+            DATA responseData = response.data;
+            if (responseData instanceof RestVolleyModel) {
+                if (((RestVolleyModel) responseData).getCode() == ((RestVolleyModel) responseData).successCode()) {
+                    callback.onSuccess(response.statusCode, responseData, response.headers, response.notModified, response.networkTimeMs, response.message);
+                } else {
+                    callback.setException(response.exception);
+                    callback.onFail(response.statusCode, responseData, response.headers, response.notModified, response.networkTimeMs, response.message);
+                }
+            } else if (responseData == null) {
+                responseData = createDefaultResponseData(clazz, response.message);
+                callback.setException(response.exception);
+                callback.onFail(response.statusCode, responseData, response.headers, response.notModified, response.networkTimeMs, response.message);
+            } else {
+                callback.onSuccess(response.statusCode, responseData, response.headers, response.notModified, response.networkTimeMs, response.message);
+            }
+        }
+
+        callback.onFinished(this);
+    }
+
+    public void syncExecute(RestVolleyCallback<String> callback) {
+        syncExecute(String.class, callback);
+    }
 
     /**
      * set url.

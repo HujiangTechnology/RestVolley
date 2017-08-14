@@ -8,6 +8,7 @@ package com.hujiang.restvolley.compat;
 import android.os.SystemClock;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.BadUrlError;
 import com.android.volley.Cache;
 import com.android.volley.Network;
 import com.android.volley.NetworkError;
@@ -143,7 +144,7 @@ public class RVNetwork implements Network {
             } catch (ConnectTimeoutException e) {
                 attemptRetryOnException("connection", request, new TimeoutError());
             } catch (MalformedURLException e) {
-                throw new RuntimeException("Bad URL " + request.getUrl(), e);
+                throw new BadUrlError("Bad URL " + request.getUrl(), e);
             } catch (IOException e) {
                 int statusCode = 0;
                 NetworkResponse networkResponse = null;
