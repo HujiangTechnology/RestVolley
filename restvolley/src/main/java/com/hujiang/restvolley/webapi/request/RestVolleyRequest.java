@@ -387,6 +387,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
     public RestVolleyResponse<String> syncExecute() {
         return syncExecute(String.class);
     }
+
     public <DATA> void syncExecute(Class<DATA> clazz, RestVolleyCallback<DATA> callback) {
         if (callback == null) {
             return;
@@ -398,6 +399,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
         RestVolleyResponse<DATA> response = syncExecute(clazz);
 
         if (response.exception instanceof VolleyError) {
+            callback.setException(response.exception);
             callback.onFail(response.statusCode, response.data, response.headers, response.notModified, response.networkTimeMs, response.message);
         } else {
             DATA responseData = response.data;
