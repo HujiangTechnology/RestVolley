@@ -1,3 +1,6 @@
+### v1.1.1(2017-08-18)
+* add call.setException when request fail
+
 ### v1.1.0(2017-08-14)
 * [add] add callback to syncExecute methods
 

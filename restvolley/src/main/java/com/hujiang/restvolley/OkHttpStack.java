@@ -94,6 +94,7 @@ public class OkHttpStack implements HttpStack {
             connection.addRequestProperty(headerName, map.get(headerName));
         }
         setConnectionParametersForRequest(connection, request);
+        connection.connect();
         // Initialize HttpResponse with data from the HttpURLConnection.
         ProtocolVersion protocolVersion = new ProtocolVersion("HTTP", 1, 1);
         int responseCode = connection.getResponseCode();
