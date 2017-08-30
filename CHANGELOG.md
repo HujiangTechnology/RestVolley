@@ -1,3 +1,6 @@
+### v1.1.2(2017-08-30)
+* fix protocol exception
+
 ### v1.1.1(2017-08-18)
 * add call.setException when request fail
 
