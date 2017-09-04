@@ -25,9 +25,12 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
 import com.hujiang.restvolley.compat.RVNetwork;
 import com.hujiang.restvolley.compat.StreamBasedNetwork;
+import com.hujiang.restvolley.cookie.PersistentCookieStore;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -129,6 +132,8 @@ public class RestVolley extends Volley {
             okHttpClient.setWriteTimeout(DEFAULT_HTTP_TIMEOUT, TimeUnit.MILLISECONDS);
             okHttpClient.setSslSocketFactory(CertificateUtils.getDefaultSSLSocketFactory());
             okHttpClient.setHostnameVerifier(CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER);
+            okHttpClient.setCookieHandler(new CookieManager(new PersistentCookieStore(context),
+                    CookiePolicy.ACCEPT_ALL));
 
             RequestQueue requestQueue = newRequestQueue(context.getApplicationContext(), new OkHttpStack(okHttpClient), DEF_THREAD_POOL_SIZE, isStreamBased);
             requestQueue.start();
