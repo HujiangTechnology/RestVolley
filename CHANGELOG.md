@@ -1,3 +1,6 @@
+### v1.1.3(2017-09-13)
+* cookie supported
+
 ### v1.1.2(2017-08-30)
 * fix protocol exception
 
