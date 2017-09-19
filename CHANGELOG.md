@@ -1,3 +1,6 @@
+### v1.1.4(2017-09-19)
+* public RestVolleyRequest.WEBAPI_REQUEST_ENGINE
+
 ### v1.1.3(2017-09-13)
 * cookie supported
 
