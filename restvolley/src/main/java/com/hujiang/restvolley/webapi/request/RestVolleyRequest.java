@@ -62,7 +62,7 @@ import javax.net.ssl.SSLSocketFactory;
  */
 public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
 
-    private static final String WEBAPI_REQUEST_ENGINE = "webapi";
+    public static final String WEBAPI_REQUEST_ENGINE = "webapi";
     /**
      * http request engine {@link RequestEngine}.
      */
