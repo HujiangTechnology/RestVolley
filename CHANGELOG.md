@@ -1,3 +1,6 @@
+### v1.1.5(2017-09-21)
+* [fix] cookie null check
+
 ### v1.1.4(2017-09-19)
 * public RestVolleyRequest.WEBAPI_REQUEST_ENGINE
 
