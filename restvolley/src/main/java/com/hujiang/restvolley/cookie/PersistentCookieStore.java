@@ -165,7 +165,7 @@ public class PersistentCookieStore implements CookieStore {
             for (Iterator<HttpCookie> it = targetCookies.iterator(); it
                     .hasNext(); ) {
                 HttpCookie currentCookie = it.next();
-                if (currentCookie.hasExpired()) {
+                if (currentCookie != null && currentCookie.hasExpired()) {
                     cookiesToRemoveFromPersistence.add(currentCookie);
                     it.remove();
                 }
