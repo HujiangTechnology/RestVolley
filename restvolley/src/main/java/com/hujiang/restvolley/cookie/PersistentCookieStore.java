@@ -72,7 +72,9 @@ public class PersistentCookieStore implements CookieStore {
                 }
                 // Repeated cookies cannot exist in persistence
                 // targetCookies.remove(cookie)
-                targetCookies.add(cookie);
+                if (cookie != null){
+                    targetCookies.add(cookie);
+                }
             } catch (URISyntaxException e) {
                 Log.w(TAG, e);
             }
@@ -81,6 +83,7 @@ public class PersistentCookieStore implements CookieStore {
 
     @Override
     public synchronized void add(URI uri, HttpCookie cookie) {
+        if (uri == null || cookie ==null) return;
         uri = cookieUri(uri, cookie);
 
         Set<HttpCookie> targetCookies = allCookies.get(uri);
