@@ -1,3 +1,6 @@
+### v1.1.6(2017-10-13)
+* [fix] NullPointException occurs while adding null cookie to cookie store
+
 ### v1.1.5(2017-09-21)
 * [fix] cookie null check
 
