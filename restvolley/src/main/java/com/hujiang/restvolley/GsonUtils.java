@@ -8,6 +8,10 @@ package com.hujiang.restvolley;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
 import java.lang.reflect.Type;
@@ -40,7 +44,15 @@ public class GsonUtils {
      * @return Gson.
      */
     public static Gson newGson() {
-        return new GsonBuilder().create();
+        return new GsonBuilder().registerTypeAdapter(Double.class, new JsonSerializer<Double>() {
+            @Override
+            public JsonElement serialize(Double aDouble, Type type, JsonSerializationContext jsonSerializationContext) {
+                if (aDouble == aDouble.longValue()) {
+                    return new JsonPrimitive(aDouble.longValue());
+                }
+                return new JsonPrimitive(aDouble);
+            }
+        }).create();
     }
 
     /**

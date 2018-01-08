@@ -1,3 +1,6 @@
+### v1.1.7(2018-01-08)
+* [fix]解决将json字符串反序列化为map时integer被强制转成double的问题
+
 ### v1.1.6(2017-10-13)
 * [fix] NullPointException occurs while adding null cookie to cookie store
 
