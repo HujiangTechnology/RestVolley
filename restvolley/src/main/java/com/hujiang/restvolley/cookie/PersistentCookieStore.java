@@ -18,6 +18,7 @@ package com.hujiang.restvolley.cookie;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.net.CookieStore;
@@ -218,9 +219,17 @@ public class PersistentCookieStore implements CookieStore {
         path is a %x2F ("/") character. */
 
     private boolean checkPathsMatch(String cookiePath, String requestPath) {
+        if (TextUtils.isEmpty(cookiePath) || TextUtils.isEmpty(requestPath)) {
+            return false;
+        }
+
+        if (cookiePath.length() > requestPath.length()) {
+            return false;
+        }
+
         return requestPath.equals(cookiePath) ||
-                (requestPath.startsWith(cookiePath) && cookiePath.charAt(cookiePath.length() - 1) == '/') ||
-                (requestPath.startsWith(cookiePath) && requestPath.substring(cookiePath.length()).charAt(0) == '/');
+                (requestPath.startsWith(cookiePath) && cookiePath.charAt(cookiePath.length() - 1) == '/')
+                || (requestPath.startsWith(cookiePath) && requestPath.substring(cookiePath.length()).charAt(0) == '/');
     }
 
     private void removeFromPersistence(URI uri, List<HttpCookie> cookiesToRemove) {

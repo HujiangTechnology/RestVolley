@@ -1,3 +1,6 @@
+### v1.1.9(2018-04-02)
+* [fix] StringIndexOfBoundException: length=0;index=-1
+
 ### v1.1.8(2018-04-02)
 * [update]默认不信任签名证书
 
