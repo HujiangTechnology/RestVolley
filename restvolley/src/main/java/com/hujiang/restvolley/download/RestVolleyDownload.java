@@ -63,7 +63,7 @@ public class RestVolleyDownload {
     private boolean mIsCanceled;
 
     private SSLSocketFactory mSSLSocketFactory = CertificateUtils.getDefaultSSLSocketFactory();
-    private HostnameVerifier mHostnameVerifier = CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
+    private HostnameVerifier mHostnameVerifier = CertificateUtils.DEFAULT_HOSTNAME_VERIFIER;
     private Map<String, String> mPinners = new LinkedHashMap<>();
     private Proxy mProxy;
     private long mConnectTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;

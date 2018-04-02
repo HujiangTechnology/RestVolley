@@ -151,6 +151,7 @@ public class CertificateUtils {
     /**
      * 信任所有请求，不做证书验证。
      */
+    @Deprecated
     public static final HostnameVerifier ALLOW_ALL_HOSTNAME_VERIFIER = new HostnameVerifier() {
         @Override
         public boolean verify(String hostname, SSLSession session) {

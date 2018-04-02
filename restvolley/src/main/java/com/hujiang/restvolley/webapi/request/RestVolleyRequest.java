@@ -130,7 +130,7 @@ public abstract class RestVolleyRequest<R extends RestVolleyRequest> {
     protected final Map<String, String> mUrlParams = new HashMap<String, String>();
 
     protected SSLSocketFactory mSSLSocketFactory = CertificateUtils.getDefaultSSLSocketFactory();
-    protected HostnameVerifier mHostnameVerifier = CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
+    protected HostnameVerifier mHostnameVerifier = CertificateUtils.DEFAULT_HOSTNAME_VERIFIER;
     private Map<String, String> mPinners = new LinkedHashMap<>();
     protected Proxy mProxy;
     protected long mConnectTimeout = RestVolley.DEFAULT_HTTP_TIMEOUT;

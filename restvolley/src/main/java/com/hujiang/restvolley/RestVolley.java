@@ -131,7 +131,7 @@ public class RestVolley extends Volley {
             okHttpClient.setReadTimeout(DEFAULT_HTTP_TIMEOUT, TimeUnit.MILLISECONDS);
             okHttpClient.setWriteTimeout(DEFAULT_HTTP_TIMEOUT, TimeUnit.MILLISECONDS);
             okHttpClient.setSslSocketFactory(CertificateUtils.getDefaultSSLSocketFactory());
-            okHttpClient.setHostnameVerifier(CertificateUtils.ALLOW_ALL_HOSTNAME_VERIFIER);
+            okHttpClient.setHostnameVerifier(CertificateUtils.DEFAULT_HOSTNAME_VERIFIER);
             okHttpClient.setCookieHandler(new CookieManager(new PersistentCookieStore(context),
                     CookiePolicy.ACCEPT_ALL));
 
