@@ -757,20 +757,24 @@ public class ImageLoaderCompat {
                 public void run() {
                     for (BatchedImageRequest bir : mBatchedResponses.values()) {
                         if (bir != null) {
-                            for (ImageContainer container : bir.mContainers) {
-                                // If one of the callers in the batched request canceled the request
-                                // after the response was received but before it was delivered,
-                                // skip them.
-                                container.mLoadFrom = LoadFrom.NETWORK;
-                                if (container.mListener == null) {
-                                    continue;
+                            try {
+                                for (ImageContainer container : bir.mContainers) {
+                                    // If one of the callers in the batched request canceled the request
+                                    // after the response was received but before it was delivered,
+                                    // skip them.
+                                    container.mLoadFrom = LoadFrom.NETWORK;
+                                    if (container.mListener == null) {
+                                        continue;
+                                    }
+                                    if (bir.getError() == null) {
+                                        container.mBitmap = bir.mResponseBitmap;
+                                        container.mListener.onResponse(container, false);
+                                    } else {
+                                        container.mListener.onErrorResponse(bir.getError());
+                                    }
                                 }
-                                if (bir.getError() == null) {
-                                    container.mBitmap = bir.mResponseBitmap;
-                                    container.mListener.onResponse(container, false);
-                                } else {
-                                    container.mListener.onErrorResponse(bir.getError());
-                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
                     }

@@ -1,3 +1,6 @@
+### v1.1.10(2018-05-29)
+* fix: NullPointException on LinkedList$Node.next
+
 ### v1.1.9(2018-04-02)
 * [fix] StringIndexOfBoundException: length=0;index=-1
 
