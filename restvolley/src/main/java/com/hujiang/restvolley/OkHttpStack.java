@@ -1,5 +1,7 @@
 package com.hujiang.restvolley;
 
+import android.text.TextUtils;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.HttpStack;
@@ -235,7 +237,7 @@ public class OkHttpStack implements HttpStack {
         byte[] body = request.getBody();
         if (body != null) {
             connection.setDoOutput(true);
-            connection.addRequestProperty(HEADER_CONTENT_TYPE, request.getBodyContentType());
+            connection.setRequestProperty(HEADER_CONTENT_TYPE, request.getBodyContentType());
             DataOutputStream out = new DataOutputStream(connection.getOutputStream());
             out.write(body);
             out.close();

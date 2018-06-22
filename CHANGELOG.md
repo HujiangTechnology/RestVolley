@@ -1,3 +1,6 @@
+### v1.1.11(2018-06-22)
+* remove duplicated item `Content-Type` in request headers
+
 ### v1.1.10(2018-05-29)
 * fix: NullPointException on LinkedList$Node.next
 
