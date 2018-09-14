@@ -252,6 +252,14 @@ public class RestVolleyImageLoader {
     }
 
     /**
+     * remove mem cache
+     * @param url
+     */
+    public void removeMemoryCache(String url) {
+        mRestVolleyImageCache.removeMemoryCache(url);
+    }
+
+    /**
      * remove all mem cache and disk cache
      */
     public void removeAllCache() {

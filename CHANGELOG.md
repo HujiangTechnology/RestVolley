@@ -1,3 +1,7 @@
+### v1.1.12(2018-09-14)
+* add: imageloader添加只删除缓存的api
+* fix: 图片下载未回调的BUG
+
 ### v1.1.11(2018-06-22)
 * remove duplicated item `Content-Type` in request headers
 

@@ -109,6 +109,12 @@ public class ImageLoaderCompat {
         public abstract boolean remove(String cacheKey);
 
         /**
+         * remove the memory
+         * @param url
+         */
+        public abstract void removeMemoryCache(String url);
+
+        /**
          * get the bitmap from the cache with the cache key.
          * @param cacheKey cache key
          * @return {@link Bitmap}
@@ -363,8 +369,8 @@ public class ImageLoaderCompat {
             // track it.
             Request<Bitmap> newRequest = makeImageRequest(requestUri, imageLoadOption, cacheKey);
 
-            mRequestQueue.add(newRequest);
             mInFlightRequests.put(cacheKey, new BatchedImageRequest(newRequest, imageContainer));
+            mRequestQueue.add(newRequest);
         }
 
         return imageContainer;
