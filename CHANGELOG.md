@@ -1,7 +1,5 @@
 ### v1.2.1(2018-10-24)
-* add uses-library "org.apache.http.legacy"
-
-### v1.1.12(2018-09-14)
+* add: uses-library "org.apache.http.legacy"
 * add: imageloader添加只删除缓存的api
 * fix: 图片下载未回调的BUG
 
