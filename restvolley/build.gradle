@@ -3,12 +3,12 @@ apply plugin: 'com.android.library'
 //apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.0"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 22
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
     }
@@ -24,7 +24,7 @@ android {
     }
 
     //for sdk 23
-//    useLibrary 'org.apache.http.legacy'
+    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
@@ -40,4 +40,4 @@ dependencies {
 }
 
 //apply from: 'bintray.gradle'
-apply from: 'maven.gradle'
+//apply from: 'maven.gradle'
