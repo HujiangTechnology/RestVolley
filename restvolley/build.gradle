@@ -40,4 +40,4 @@ dependencies {
 }
 
 //apply from: 'bintray.gradle'
-//apply from: 'maven.gradle'
+apply from: 'maven.gradle'

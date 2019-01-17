@@ -1,3 +1,6 @@
+### v1.2.2(2019-01-14)
+* fix: 同一个url图片地址，无法收到回调的BUG
+
 ### v1.2.1(2018-10-24)
 * add: uses-library "org.apache.http.legacy"
 * add: imageloader添加只删除缓存的api

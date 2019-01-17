@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.android.volley.Request;
@@ -63,6 +64,8 @@ public class ImageLoaderCompat {
      * that we can coalesce multiple requests to the same uri into a single network request.
      */
     private final ConcurrentHashMap<String, BatchedImageRequest> mInFlightRequests = new ConcurrentHashMap<String, BatchedImageRequest>();
+
+    private final Object mInFlightRequestsLock = new Object();
 
     /** HashMap of the currently pending responses (waiting to be delivered). */
     private final ConcurrentHashMap<String, BatchedImageRequest> mBatchedResponses = new ConcurrentHashMap<String, BatchedImageRequest>();
@@ -356,21 +359,23 @@ public class ImageLoaderCompat {
                 }
             }
         } else {
-            //load bitmap from network
-            // Check to see if a request is already in-flight.
-            BatchedImageRequest request = mInFlightRequests.get(cacheKey);
-            if (request != null) {
-                // If it is, add this request to the list of listeners.
-                request.addContainer(imageContainer);
-                return imageContainer;
+            synchronized (mInFlightRequestsLock) {
+                // load bitmap from network
+                // Check to see if a request is already in-flight.
+                BatchedImageRequest request = mInFlightRequests.get(cacheKey);
+                if (request != null) {
+                    // If it is, add this request to the list of listeners.
+                    request.addContainer(imageContainer);
+                    return imageContainer;
+                }
+
+                // The request is not already in flight. Send the new request to the network and
+                // track it.
+                Request<Bitmap> newRequest = makeImageRequest(requestUri, imageLoadOption, cacheKey);
+
+                mInFlightRequests.put(cacheKey, new BatchedImageRequest(newRequest, imageContainer));
+                mRequestQueue.add(newRequest);
             }
-
-            // The request is not already in flight. Send the new request to the network and
-            // track it.
-            Request<Bitmap> newRequest = makeImageRequest(requestUri, imageLoadOption, cacheKey);
-
-            mInFlightRequests.put(cacheKey, new BatchedImageRequest(newRequest, imageContainer));
-            mRequestQueue.add(newRequest);
         }
 
         return imageContainer;
